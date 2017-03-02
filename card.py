@@ -1,19 +1,24 @@
 import requests
+import discord
 import json
 
 
 def card_fetch(cardname):
-    l = []
     response = requests.get('http://api.scryfall.com/cards/search', params={'q':cardname}).json()
-    msg = "**" + response['data'][0]['name'] + "** "
+    embed = discord.Embed(url=response['data'][0]['scryfall_uri'], color=discord.Color(0x1b6f9))
+    embed.title = "**" + response['data'][0]['name'] + "** "
     if response['data'][0]['converted_mana_cost'] != "0.0":
-        msg += response['data'][0]['mana_cost']
-    msg += " - *" + response['data'][0]['set'].upper()+"*"
-    msg += "\n"
-    msg += response['data'][0]['type_line'] + " "
+        embed.title += response['data'][0]['mana_cost']
+    embed.description = response['data'][0]['type_line']
     if "Creature" in response['data'][0]['type_line']:
-        msg += " "+response['data'][0]['power']+"/"+response['data'][0]['toughness']+"\n"
-    msg += response['data'][0]['oracle_text'] + "\n"
-    msg += response['data'][0]['image_uri']
-    l=[msg]
-    return l
+        embed.description += " "+response['data'][0]['power']+"/"+response['data'][0]['toughness']+"\n"
+    embed.description += " - *"+response['data'][0]['set'].upper()+"* \n"
+    embed.description += response['data'][0]['oracle_text']+"\n"
+    return embed
+
+def cardimage_fetch(cardname):
+    response = requests.get('http://api.scryfall.com/cards/search', params={'q':cardname}).json()
+    msg = discord.Embed(url=response['data'][0]['scryfall_uri'], color=discord.Color(0x1b6f9))
+    msg.title = "**"+response['data'][0]['name']+"**"
+    msg.set_image(url=response['data'][0]['image_uri'])
+    return msg
