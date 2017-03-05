@@ -2,13 +2,13 @@ import card
 from secret import token
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix="!")
+bot = commands.Bot(command_prefix="?")
 
 @bot.command(pass_context=True)
-async def fetch(ctx, ):
+async def mtg(message : str, ctx):
     print("Requesting card: " + ctx)
-    embed = card.cardimage_fetch(ctx)
-    await bot.say(message.channel, embed=embed)
+    msg = card.cardimage_fetch(ctx)
+    await bot.say(embed=msg)
 
 #
 # @bot.event
