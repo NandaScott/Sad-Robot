@@ -1,45 +1,18 @@
-import card
+import discord
 from secret import token
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix="?")
+description = '''
+A bot that was made to practice my python and make a cool function for my discord server.
+'''
 
-@bot.command(pass_context=True)
-async def mtg(message : str, ctx):
-    print("Requesting card: " + ctx)
-    msg = card.cardimage_fetch(ctx)
-    await bot.say(embed=msg)
+bot = commands.Bot(command_prefix="?", description=description)
 
-#
-# @bot.event
-# async def on_message(message):
-#     # we do not want the bot to reply to itself
-#     if message.author == bot.user:
-#         return
-#
-#     if message.content.startswith('!hello'):
-#         msg = 'Hello {0.author.mention}... I guess...'.format(message)
-#         await bot.send_message(message.channel, msg)
-
-    #Card fetching section
-    # content = message.content
-    # fin = len(content)
-    # grab = content.find("[")
-    # debut = 1
-    # while debut > 0:
-    #     # ss1 = content[ouvert: fin]
-    #     fin = content.find("]", grab)
-    #     requete = content[grab: fin]
-    #     print("Request: " + requete)
-    #     if "#" in requete:
-    #         embed = card.card_fetch(requete)
-    #         await bot.send_message(message.channel, embed=embed)
-    #     else:
-    #         embed = card.cardimage_fetch(requete)
-    #         await bot.send_message(message.channel, embed=embed)
-    #
-    #     grab = content.find("[", fin)
-    #     debut=1
+#Manages what extensions are required.
+startup_extensions = [
+    "cogs.mtg",
+    "cogs.rng"
+]
 
 @bot.event
 async def on_ready():
@@ -48,4 +21,13 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
-bot.run(token)
+
+if __name__ == "__main__":
+    for extension in startup_extensions:
+        try:
+            bot.load_extension(extension)
+        except Exception as e:
+            exc = '{}: {}'.format(type(e).__name__, e)
+            print('Failed to load extension {}\n{}'.format(extension, exc))
+
+    bot.run(token)
