@@ -24,7 +24,7 @@ class RNG():
 
     @commands.command(description='For choosing a random overwatch hero.')
     async def rhero(self):
-        heros=[
+        heros=random.choice([
         'Genji. Embrace your inner weeb.',
         'Mccree. Reach for the sky!',
         'Pharah. JUSTICE RAINS FROM-AAAUGH!',
@@ -49,8 +49,18 @@ class RNG():
         'Mercy. Nice team wipe you had there.',
         'Symmetra. :musical_note: Tunak Tunak Tun Tunak Tunak Tun :musical_note:',
         'Zenyatta. Show everyone how many balls you have.'
-        ]
-        await self.bot.say(random.choice(heros))
+        ])
+        await self.bot.say(heros)
+
+    @commands.command()
+    async def lenny(self):
+        """Displays a random lenny face."""
+        lenny = random.choice([
+            "( ͡° ͜ʖ ͡°)", "( ͠° ͟ʖ ͡°)", "ᕦ( ͡° ͜ʖ ͡°)ᕤ", "( ͡~ ͜ʖ ͡°)",
+            "( ͡o ͜ʖ ͡o)", "( ͡° ͜ʖ ͡ -)", "( ͡͡ ° ͜ ʖ ͡ °)﻿", "(ง ͠° ͟ل͜ ͡°)ง",
+            "ヽ༼ຈل͜ຈ༽ﾉ"
+        ])
+        await self.bot.say(lenny)
 
 
 def setup(bot):
