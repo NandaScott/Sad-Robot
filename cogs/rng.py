@@ -7,7 +7,7 @@ class RNG():
 
     @commands.command()
     async def roll(self, dice : str):
-        """Rolls a dice in NdN format."""
+        # Rolls a dice in NdN format.
         try:
             rolls, limit = map(int, dice.split('d'))
         except Exception:
@@ -19,7 +19,7 @@ class RNG():
 
     @commands.command(description='For when you wanna settle the score some other way')
     async def choose(self, *choices : str):
-        """Chooses between multiple choices."""
+        # Chooses between multiple choices.
         await self.bot.say(random.choice(choices))
 
 
