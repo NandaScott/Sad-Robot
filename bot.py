@@ -22,10 +22,6 @@ async def on_ready():
     print('------')
     await bot.change_presence(game=discord.Game(name="Affinity"))
 
-@bot.command
-async def source():
-    await bot.say('https://github.com/NandaScott/Sad-Robot')
-
 
 if __name__ == "__main__":
     for extension in startup_extensions:
