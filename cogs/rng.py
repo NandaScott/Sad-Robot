@@ -20,7 +20,11 @@ class RNG():
 
     @commands.command(description='For when you wanna settle the score some other way')
     async def choose(self, *, choices : str):
-        await self.bot.say(random.choice(re.split(', ', choices)))
+        try:
+            await self.bot.say(random.choice(re.split(', ', choices)))
+        except Exception:
+            await self.bot.say('Format should be choice1, choice2')
+            return
 
     @commands.command(description='For choosing a random overwatch hero.')
     async def rhero(self):
