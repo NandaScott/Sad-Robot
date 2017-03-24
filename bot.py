@@ -20,6 +20,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+    await bot.change_presence(game=discord.Game(name="Affinity"))
 
 
 if __name__ == "__main__":
