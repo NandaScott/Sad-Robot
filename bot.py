@@ -10,7 +10,7 @@ bot = commands.Bot(command_prefix="?", description=description)
 
 #Manages what extensions are required.
 startup_extensions = [
-    # "cogs.mtg",
+    "cogs.mtg",
     "cogs.rng",
     "cogs.meta",
     "cogs.fun"
