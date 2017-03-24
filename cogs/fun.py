@@ -10,12 +10,13 @@ class Fun():
     @commands.command()
     async def piglatin(self, *, words : str):
         pyg = 'ay'
+        punc = [".",",","!","?",";"]
         vowels = ['a', 'e', 'i', 'o', 'u']
         digraphs = ['bl', 'br', 'ch', 'cl', 'cr', 'dr', 'fl', 'fr', 'gl', 'gr', 'pl', 'pr', 'sc', 'sh', 'sk', 'sl', 'sm', 'sn', 'sp',
         'st', 'sw', 'th', 'tr', 'tw', 'wh', 'wr']
         trigraphs = ['sch', 'scr', 'shr', 'sph', 'spl', 'spr', 'squ', 'str', 'thr']
         msg = ""
-        sentence = re.split(" ", words)
+        sentence = re.findall(r"[\w']+|[.,!?;]", words)
         for word in sentence:
             #Checks for Digraphs and Trigraphs
             if word[0:2].lower() in digraphs:
@@ -37,10 +38,12 @@ class Fun():
                     # Checks for vowels at the beginning of a word
             if first in vowels:
                 stitch = pygify + first + 'w' + pyg
-                msg += stitch + " "
+                msg += " " + stitch
+            elif first in punc:
+                msg += first
             else:
                 stitch = pygify + first + pyg
-                msg += stitch + " "
+                msg += " " + stitch
 
         await self.bot.say(msg)
 
