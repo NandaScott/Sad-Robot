@@ -11,7 +11,8 @@ bot = commands.Bot(command_prefix="?", description=description)
 #Manages what extensions are required.
 startup_extensions = [
     "cogs.mtg",
-    "cogs.rng"
+    "cogs.rng",
+    "cogs.meta"
 ]
 
 @bot.event
