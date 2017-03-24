@@ -6,7 +6,7 @@ class RNG():
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description="Rolls some dice for you.")
     async def roll(self, dice : str):
         # Rolls a dice in NdN format.
         try:
@@ -56,7 +56,7 @@ class RNG():
         ])
         await self.bot.say(heros)
 
-    @commands.command()
+    @commands.command(description="Randomly chooses a lenny face.")
     async def lenny(self):
         """Displays a random lenny face."""
         lenny = random.choice([

@@ -6,7 +6,8 @@ description = '''
 A bot that was made to practice my python and make a cool function for my discord server.
 '''
 
-bot = commands.Bot(command_prefix="?", description=description)
+prefix = ['?', '!', '/']
+bot = commands.Bot(command_prefix=prefix, description=description)
 
 #Manages what extensions are required.
 startup_extensions = [
@@ -18,7 +19,7 @@ startup_extensions = [
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(game=discord.Game(name="Affinity"))
+    await bot.change_presence(game=discord.Game(name="Depression"))
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)

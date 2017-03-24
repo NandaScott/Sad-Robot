@@ -7,7 +7,7 @@ class Fun():
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description="Will translate the following sentence into Pig Latin.")
     async def piglatin(self, *, words : str):
         pyg = 'ay'
         punc = [".",",","!","?",";"]
