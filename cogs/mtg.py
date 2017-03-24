@@ -21,6 +21,7 @@ class Mtg():
         j = json.loads(data.decode('utf-8'))
         msg = discord.Embed(url=j['scryfall_uri'], color=discord.Color(0x1b6f9))
         msg.set_image(url=j['image_uri'])
+        msg.title = "**" + j['name'] + "**"
         await self.bot.say(embed=msg)
 
 def setup(bot):
