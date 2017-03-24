@@ -17,12 +17,16 @@ class Mtg():
 
     @commands.command(pass_context=True)
     async def mtg(self, message : str, ctx):
-        data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': ctx})
-        card = json.loads(data.decode('utf-8'))
-        msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
-        msg.set_image(url=card['image_uri'])
-        msg.title = "**" + card['name'] + "**"
-        await self.bot.say(embed=msg)
+        try:
+            data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': ctx})
+            card = json.loads(data.decode('utf-8'))
+            msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
+            msg.set_image(url=card['image_uri'])
+            msg.title = "**" + card['name'] + "**"
+            await self.bot.say(embed=msg)
+        except Exception:
+            await self.bot.say("Sorry, couldn't find that card. Check your spelling or syntax.")
+            return
 
 def setup(bot):
     bot.add_cog(Mtg(bot))

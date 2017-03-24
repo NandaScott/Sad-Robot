@@ -1,4 +1,5 @@
 import random
+import re
 from discord.ext import commands
 
 class RNG():
@@ -18,9 +19,8 @@ class RNG():
         await self.bot.say(result)
 
     @commands.command(description='For when you wanna settle the score some other way')
-    async def choose(self, *choices : str):
-        # Chooses between multiple choices.
-        await self.bot.say(random.choice(choices))
+    async def choose(self, *, choices : str):
+        await self.bot.say(random.choice(re.split(', ', choices)))
 
     @commands.command(description='For choosing a random overwatch hero.')
     async def rhero(self):
