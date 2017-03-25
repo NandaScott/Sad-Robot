@@ -15,7 +15,8 @@ class Mtg():
             return await response.read()
 
     @commands.command(pass_context=True)
-    async def mtg(self, message : str, ctx, description="Fetches cards with Scryfall."):
+    async def mtg(self, message : str, ctx):
+        """Fetches cards with Scryfall."""
         try:
             data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': ctx})
             card = json.loads(data.decode('utf-8'))
