@@ -21,7 +21,7 @@ class RNG():
     @commands.command(description='For when you wanna settle the score some other way')
     async def choose(self, *, choices : str):
         try:
-            await self.bot.say(random.choice(re.split(', ', choices)))
+            await self.bot.say(random.choice(re.split(', |or ', choices)))
         except Exception:
             await self.bot.say('Format should be choice1, choice2')
             return
@@ -65,7 +65,6 @@ class RNG():
             "ヽ༼ຈل͜ຈ༽ﾉ"
         ])
         await self.bot.say(lenny)
-
 
 def setup(bot):
     bot.add_cog(RNG(bot))

@@ -47,7 +47,13 @@ class Fun():
 
         await self.bot.say(msg)
 
-
+    @commands.command(description="Let me Google that for you.")
+    async def lmgtfy(self, *, words : str):
+        search = "+".join(re.findall(r"[\w']+|[.,!?;]", words))
+        url = 'http://lmgtfy.com/?q=%s' % search
+        msg = discord.Embed(url=url, color=discord.Color(0x1b6f9))
+        msg.title = "Google"
+        await self.bot.say(embed=msg)
 
 
 def setup(bot):
