@@ -1,5 +1,6 @@
 import asyncio, aiohttp, json
 import discord
+import re
 from discord.ext import commands
 
 class Mtg():
@@ -13,18 +14,28 @@ class Mtg():
             assert response.status == 200
             return await response.read()
 
-    @commands.command(pass_context=True)
-    async def mtg(self, message : str, ctx, description="Fetches cards with Scryfall. Syntax is ?mtg 'cardname'."):
-        try:
-            data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': ctx})
-            card = json.loads(data.decode('utf-8'))
-            msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
-            msg.set_image(url=card['image_uri'])
-            msg.title = "**" + card['name'] + "**"
-            await self.bot.say(embed=msg)
-        except Exception:
-            await self.bot.say("Sorry, couldn't find that card. Check your spelling or syntax.")
-            return
+
+
+    @commands.command()
+    async def mtg(self, *, message : str):
+        cardname = "+".join(re.findall(r"[\w']+|[.,!?;]", message))
+        data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': cardname})
+        card = json.loads(data.decode('utf-8'))
+        msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
+        msg.set_image(url=card['image_uri'])
+        msg.title = "**" + card['name'] + "**"
+        await self.bot.say(embed=msg)
+        # try:
+        #     cardname = "+".join(re.findall(r"[\w']+|[.,!?;]", ctx))
+        #     data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': cardname})
+        #     card = json.loads(data.decode('utf-8'))
+        #     msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
+        #     msg.set_image(url=card['image_uri'])
+        #     msg.title = "**" + card['name'] + "**"
+        #     await self.bot.say(embed=msg)
+        # except Exception:
+        #     await self.bot.say("Sorry, couldn't find that card. Check your spelling or syntax.")
+        #     return
 
 def setup(bot):
     bot.add_cog(Mtg(bot))
