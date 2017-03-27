@@ -27,58 +27,59 @@ class Mtg():
         """
         Fetches MTG cards.
 
-        ?mtg <cardname>
-
-        For now arguments cannot be passed without error.
+        ?mtg "<cardname>"
         """
 
         parser = Arguments(add_help=False, allow_abbrev=False)
         parser.add_argument('cardname')
-        parser.add_argument('-p', '--price')
-        parser.add_argument('-o', '--oracle')
-        parser.add_argument('-l', '--legality')
-        parser.add_argument('-b', '--buy')
-        parser.add_argument('-f', '--fuzzy')
+        parser.add_argument('-p', '--price', action='store_true')
+        parser.add_argument('-o', '--oracle', action='store_true')
+        parser.add_argument('-l', '--legality', action='store_true')
+        parser.add_argument('-b', '--buy', action='store_true')
+        # parser.add_argument('-f', '--fuzzy', action='store_true')
 
         try:
             args = parser.parse_args(shlex.split(message))
         except Exception as e:
             await self.bot.say(str(e))
             return
-        # cardname = "+".join(re.findall(r"[\w']+|[.,!?;]", message))
 
-        if args.fuzzy:
-            data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy':args.cardname})
-        else:
-            data = await self.get_json(url='http://api.scryfall.com/cards/search', params={'q': args.cardname})
+        data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy':args.cardname})
+        # if args.fuzzy:
+        #     data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy':args.cardname})
+        # else:
+        #     data = await self.get_json(url='http://api.scryfall.com/cards/search', params={'q': args.cardname})
 
         card = json.loads(data.decode('utf-8'))
-        msg = discord.Embed(url=card['data'][0]['scryfall_uri'], color=discord.Color(0x1b6f9))
+        msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
 
-        if args is not None:
-            msg.set_image(url=card['data'][0]['image_uri'])
+        if args == args.cardname:
+            msg.set_thumbnail(url=card['image_uri'])
         else:
-            msg.set_thumbnail(url=card['data'][0]['image_uri'])
-        msg.title = "**" + card['data'][0]['name'] + "**"
+            msg.set_image(url=card['image_uri'])
+        msg.title = "**" + card['name'] + "**"
 
         if args.price:
             price = []
-            if card['data'][0]['usd']:
+            if card['usd']:
                 price.append("**USD**: "+'${:,.2f}'.format(card['usd']))
-            elif card['data'][0]['eur']:
+            elif card['eur']:
                 price.append("**EUR**: "+'€{:,.2f}'.format(card['eur']))
-            elif card['data'][0]['tix']:
+            elif card['tix']:
                 price.append("**TIX**: "+'{:,.2f}'.format(card['tix']))
             " ".join(price)
-            msg.set_description(description=price)
+            msg.description=price
 
         if args.oracle:
-            msg.set_description(description=card['data'][0]['oracle_text'])
+            msg.title +=" "+card['mana_cost']
+            msg.description=card['type_line']+"\n"+card['oracle_text']
+            if "Creature" in card['type_line']:
+                msg.description += "\n"+card['power']+"/"+card['toughness']
 
         if args.legality:
             legal_in = []
             not_legal = []
-            for k, v in card['data'][0]['legalities']:
+            for k, v in card['legalities']:
                 if v == "legal":
                     legal_in.append(v)
                 else:
@@ -87,8 +88,8 @@ class Mtg():
             msg.add_field(name="Not Legal", value=not_legal)
 
         if args.buy:
-            for k, v in card['data'][0]['purchase_uris']:
-                msg.set_description(description="["+k+"]("+v+")")
+            for k, v in card['purchase_uris']:
+                msg.description="["+k+"]("+v+")"
 
         await self.bot.say(embed=msg)
         # try:
