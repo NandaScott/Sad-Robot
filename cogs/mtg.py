@@ -35,8 +35,6 @@ class Mtg():
         parser.add_argument('-p', '--price', action='store_true')
         parser.add_argument('-o', '--oracle', action='store_true')
         parser.add_argument('-l', '--legality', action='store_true')
-        parser.add_argument('-b', '--buy', action='store_true')
-        # parser.add_argument('-f', '--fuzzy', action='store_true')
 
         try:
             args = parser.parse_args(shlex.split(message))
@@ -45,51 +43,49 @@ class Mtg():
             return
 
         data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy':args.cardname})
-        # if args.fuzzy:
-        #     data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy':args.cardname})
-        # else:
-        #     data = await self.get_json(url='http://api.scryfall.com/cards/search', params={'q': args.cardname})
 
         card = json.loads(data.decode('utf-8'))
         msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
-
-        if args == args.cardname:
-            msg.set_thumbnail(url=card['image_uri'])
-        else:
-            msg.set_image(url=card['image_uri'])
         msg.title = "**" + card['name'] + "**"
+        msg.description = ""
+
+        if args.oracle is False and args.price is False and args.legality is False:
+            msg.set_image(url=card['image_uri'])
+
+        if args.oracle:
+            msg.set_thumbnail(url=card['image_uri'])
+            msg.title +=" "+card['mana_cost']
+            msg.description += card['type_line']+"\n"+card['oracle_text']
+            if "Creature" in card['type_line']:
+                msg.description += "\n \n"+card['power']+"/"+card['toughness']
 
         if args.price:
             price = []
             if card['usd']:
-                price.append("**USD**: "+'${:,.2f}'.format(card['usd']))
-            elif card['eur']:
-                price.append("**EUR**: "+'€{:,.2f}'.format(card['eur']))
-            elif card['tix']:
-                price.append("**TIX**: "+'{:,.2f}'.format(card['tix']))
-            " ".join(price)
-            msg.description=price
+                price.append("**USD**: "+ '${:,.2f}'.format(float(card['usd'])))
+            if card['eur']:
+                price.append(u"\u2022"+" **EUR**: "+'€{:,.2f}'.format(float(card['eur'])))
+            if card['tix']:
+                price.append(u"\u2022"+" **TIX**: "+'{:,.2f}'.format(float(card['tix'])))
+            msg.description += "\n \n"+" ".join(price)
+            msg.set_thumbnail(url=card['image_uri'])
 
-        if args.oracle:
-            msg.title +=" "+card['mana_cost']
-            msg.description=card['type_line']+"\n"+card['oracle_text']
-            if "Creature" in card['type_line']:
-                msg.description += "\n"+card['power']+"/"+card['toughness']
-
+        # This is spaghetti code but I couldn't iterate through it. Temp fix.
         if args.legality:
             legal_in = []
             not_legal = []
-            for k, v in card['legalities']:
-                if v == "legal":
-                    legal_in.append(v)
-                else:
-                    not_legal.append(v)
-            msg.add_field(name="Legal", value=legal_in)
-            msg.add_field(name="Not Legal", value=not_legal)
+            legal_in.append('Standard') if card['legalities']['standard'] == "legal" else not_legal.append('Standard')
+            legal_in.append('Frontier') if card['legalities']['frontier'] == "legal" else not_legal.append('Frontier')
+            legal_in.append('Modern') if card['legalities']['modern'] == "legal" else not_legal.append('Modern')
+            legal_in.append('Pauper') if card['legalities']['pauper'] == "legal" else not_legal.append('Pauper')
+            legal_in.append('Legacy') if card['legalities']['legacy'] == "legal" else not_legal.append('Legacy')
+            legal_in.append('Penny Dreadful') if card['legalities']['penny'] == "legal" else not_legal.append('Penny Dreadful')
+            legal_in.append('Vintage') if card['legalities']['vintage'] == "legal" else not_legal.append('Vintage')
+            legal_in.append('Duel Comm.') if card['legalities']['duel'] == "legal" else not_legal.append('Duel Comm.')
+            legal_in.append('Commander') if card['legalities']['commander'] == "legal" else not_legal.append('Commander')
+            msg.description +="\n \n"+"**Legal In**: "+u" \u2022 ".join(legal_in)+"\n **Not Legal In**: "+u" \u2022 ".join(not_legal)
+            msg.set_thumbnail(url=card['image_uri'])
 
-        if args.buy:
-            for k, v in card['purchase_uris']:
-                msg.description="["+k+"]("+v+")"
 
         await self.bot.say(embed=msg)
         # try:
