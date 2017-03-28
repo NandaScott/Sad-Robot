@@ -27,7 +27,16 @@ class Mtg():
         """
         Fetches MTG cards.
 
-        ?mtg "<cardname>"
+        ?mtg "<cardname>" <argument(s)>
+
+        positional arguments:
+        "<cardname>"    You must have a card to fetch for. The bot can correct spelling errors,
+                        but will also fetch Un-set cards so be careful. You also must have quotation marks.
+
+        optional arguments:
+        -p, --price     Will fetch the price of the called card.
+        -o, --oracle    Will fetch the most recent oracle text of the called card.
+        -l, --legality  Will fetch the legalities of the card.
         """
 
         parser = Arguments(add_help=False, allow_abbrev=False)
@@ -74,31 +83,26 @@ class Mtg():
         if args.legality:
             legal_in = []
             not_legal = []
+            restricted =[]
             legal_in.append('Standard') if card['legalities']['standard'] == "legal" else not_legal.append('Standard')
             legal_in.append('Frontier') if card['legalities']['frontier'] == "legal" else not_legal.append('Frontier')
             legal_in.append('Modern') if card['legalities']['modern'] == "legal" else not_legal.append('Modern')
             legal_in.append('Pauper') if card['legalities']['pauper'] == "legal" else not_legal.append('Pauper')
             legal_in.append('Legacy') if card['legalities']['legacy'] == "legal" else not_legal.append('Legacy')
             legal_in.append('Penny Dreadful') if card['legalities']['penny'] == "legal" else not_legal.append('Penny Dreadful')
-            legal_in.append('Vintage') if card['legalities']['vintage'] == "legal" else not_legal.append('Vintage')
             legal_in.append('Duel Comm.') if card['legalities']['duel'] == "legal" else not_legal.append('Duel Comm.')
             legal_in.append('Commander') if card['legalities']['commander'] == "legal" else not_legal.append('Commander')
+            #Vintage is a special case since it's the only format with restrictions.
+            if card['legalities']['vintage'] == 'restricted':
+                restricted.append('Vintage')
+            else:
+                legal_in.append('Vintage') if card['legalities']['vintage'] == "legal" else not_legal.append('Vintage')
             msg.description +="\n \n"+"**Legal In**: "+u" \u2022 ".join(legal_in)+"\n **Not Legal In**: "+u" \u2022 ".join(not_legal)
+            msg.description +="\n"+"**Restricted In**: "+"".join(restricted)
             msg.set_thumbnail(url=card['image_uri'])
 
 
         await self.bot.say(embed=msg)
-        # try:
-        #     cardname = "+".join(re.findall(r"[\w']+|[.,!?;]", ctx))
-        #     data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': cardname})
-        #     card = json.loads(data.decode('utf-8'))
-        #     msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
-        #     msg.set_image(url=card['image_uri'])
-        #     msg.title = "**" + card['name'] + "**"
-        #     await self.bot.say(embed=msg)
-        # except Exception:
-        #     await self.bot.say("Sorry, couldn't find that card. Check your spelling or syntax.")
-        #     return
 
 def setup(bot):
     bot.add_cog(Mtg(bot))
