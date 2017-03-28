@@ -7,8 +7,9 @@ class Fun():
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(description="Will translate the following sentence into Pig Latin.")
+    @commands.command()
     async def piglatin(self, *, words : str):
+        """Will translate the following sentence into Pig Latin."""
         pyg = 'ay'
         punc = [".",",","!","?",";"]
         vowels = ['a', 'e', 'i', 'o', 'u']
@@ -47,7 +48,14 @@ class Fun():
 
         await self.bot.say(msg)
 
-
+    @commands.command()
+    async def lmgtfy(self, *, words : str):
+        """Let me google that for you."""
+        search = "+".join(re.findall(r"[\w']+|[.,!?;]", words))
+        url = 'http://lmgtfy.com/?q=%s' % search
+        msg = discord.Embed(url=url, color=discord.Color(0x1b6f9))
+        msg.title = "Google"
+        await self.bot.say(embed=msg)
 
 
 def setup(bot):

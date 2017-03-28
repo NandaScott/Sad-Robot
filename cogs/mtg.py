@@ -1,15 +1,11 @@
 import asyncio, aiohttp, json
 import discord
-import re
 import argparse, shlex
 from discord.ext import commands
 
 class Arguments(argparse.ArgumentParser):
     def error(self, message):
         raise RuntimeError(message)
-
-
-
 
 class Mtg():
     def __init__(self, bot):
