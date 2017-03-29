@@ -15,6 +15,7 @@ class Mtg():
 
     async def get_json(self, url, **kwargs):
         async with self.session.get(url, **kwargs) as response:
+            # print(response.status)
             assert response.status == 200
             return await response.read()
 
@@ -36,7 +37,7 @@ class Mtg():
         """
 
         parser = Arguments(add_help=False, allow_abbrev=False)
-        parser.add_argument('cardname')
+        parser.add_argument('cardname', nargs="+")
         parser.add_argument('-p', '--price', action='store_true')
         parser.add_argument('-o', '--oracle', action='store_true')
         parser.add_argument('-l', '--legality', action='store_true')
@@ -47,7 +48,7 @@ class Mtg():
             await self.bot.say(str(e))
             return
 
-        data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy':args.cardname})
+        data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname})
 
         card = json.loads(data.decode('utf-8'))
         msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
