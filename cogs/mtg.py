@@ -1,6 +1,7 @@
 import asyncio, aiohttp, json
 import discord
 import argparse, shlex
+import re
 from discord.ext import commands
 
 class Arguments(argparse.ArgumentParser):
@@ -15,8 +16,6 @@ class Mtg():
 
     async def get_json(self, url, **kwargs):
         async with self.session.get(url, **kwargs) as response:
-            # print(response.status)
-            assert response.status == 200
             return await response.read()
 
     @commands.command()
@@ -24,10 +23,10 @@ class Mtg():
         """
         Fetches MTG cards.
 
-        ?mtg "<cardname>" <argument(s)>
+        ?mtg <cardname> <argument(s)>
 
         positional arguments:
-        "<cardname>"    You must have a card to fetch for. The bot can correct spelling errors,
+        <cardname>    You must have a card to fetch for. The bot can correct spelling errors,
                         but will also fetch Un-set cards so be careful. You also must have quotation marks.
 
         optional arguments:
@@ -49,8 +48,13 @@ class Mtg():
             return
 
         data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname})
-
         card = json.loads(data.decode('utf-8'))
+        if card['object'] == 'error':
+            e = card['details']
+            ne = e.replace("['", "")
+            ne = ne.replace("']", "")
+            await self.bot.say(ne)
+            return
         msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
         msg.title = "**" + card['name'] + "**"
         msg.description = ""
