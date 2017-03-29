@@ -16,6 +16,7 @@ class Mtg():
 
     async def get_json(self, url, **kwargs):
         async with self.session.get(url, **kwargs) as response:
+            # print(response.status)
             return await response.read()
 
     @commands.command()
@@ -40,6 +41,7 @@ class Mtg():
         parser.add_argument('-p', '--price', action='store_true')
         parser.add_argument('-o', '--oracle', action='store_true')
         parser.add_argument('-l', '--legality', action='store_true')
+        parser.add_argument('-s', '--set')
 
         try:
             args = parser.parse_args(shlex.split(message))
