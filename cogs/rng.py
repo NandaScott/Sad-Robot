@@ -22,7 +22,7 @@ class RNG():
     async def choose(self, *, choices : str):
         """Chooses between multiple options."""
         try:
-            await self.bot.say(random.choice(re.split(', |or ', choices)))
+            await self.bot.say(random.choice(re.split(', | or ', choices)))
         except Exception:
             await self.bot.say('Format should be choice1, choice2')
             return

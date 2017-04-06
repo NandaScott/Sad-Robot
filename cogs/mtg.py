@@ -1,7 +1,8 @@
 import asyncio, aiohttp, json
 import discord
 import argparse, shlex
-import re
+import re, time
+import random
 from discord.ext import commands
 
 class Arguments(argparse.ArgumentParser):
@@ -35,13 +36,13 @@ class Mtg():
         -o, --oracle    Will fetch the most recent oracle text of the called card.
         -l, --legality  Will fetch the legalities of the card.
         """
-
+        start = time.time()
         parser = Arguments(add_help=False, allow_abbrev=False)
         parser.add_argument('cardname', nargs="+")
         parser.add_argument('-p', '--price', action='store_true')
         parser.add_argument('-o', '--oracle', action='store_true')
         parser.add_argument('-l', '--legality', action='store_true')
-        parser.add_argument('-s', '--set')
+        parser.add_argument('-s', '--set', action='store_true')
 
         try:
             args = parser.parse_args(shlex.split(message))
@@ -51,10 +52,12 @@ class Mtg():
 
         data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname})
         card = json.loads(data.decode('utf-8'))
+
         if card['object'] == 'error':
             e = card['details']
-            ne = e.replace("['", "")
-            ne = ne.replace("']", "")
+            ne = re.sub(r'\[\'', '', e)
+            ne = re.sub(r'\'\]', '', ne)
+            ne = re.sub(r'\', \'', ' ', ne)
             await self.bot.say(ne)
             return
         msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
@@ -73,13 +76,25 @@ class Mtg():
 
         if args.price:
             price = []
-            if card['usd']:
-                price.append("**USD**: "+ '${:,.2f}'.format(float(card['usd'])))
-            if card['eur']:
-                price.append(u"\u2022"+" **EUR**: "+'€{:,.2f}'.format(float(card['eur'])))
-            if card['tix']:
-                price.append(u"\u2022"+" **TIX**: "+'{:,.2f}'.format(float(card['tix'])))
-            msg.description += "\n \n"+" ".join(price)
+            try:
+                if card['usd']:
+                    price.append("**USD**: "+ '${:,.2f}'.format(float(card['usd'])))
+            except:
+                pass
+            try:
+                if card['eur']:
+                    price.append(u"\u2022"+" **EUR**: "+'€{:,.2f}'.format(float(card['eur'])))
+            except:
+                pass
+            try:
+                if card['tix']:
+                    price.append(u"\u2022"+" **TIX**: "+'{:,.2f}'.format(float(card['tix'])))
+            except:
+                pass
+            if price == None:
+                msg.description += "Sorry, the price for this edition aren't available yet."
+            else:
+                msg.description += "\n \n"+" ".join(price)
             msg.set_thumbnail(url=card['image_uri'])
 
         # This is spaghetti code but I couldn't iterate through it. Temp fix.
@@ -98,13 +113,15 @@ class Mtg():
             #Vintage is a special case since it's the only format with restrictions.
             if card['legalities']['vintage'] == 'restricted':
                 restricted.append('Vintage')
+                msg.description +="\n"+"**Restricted In**: "+"".join(restricted)
             else:
                 legal_in.append('Vintage') if card['legalities']['vintage'] == "legal" else not_legal.append('Vintage')
             msg.description +="\n \n"+"**Legal In**: "+u" \u2022 ".join(legal_in)+"\n **Not Legal In**: "+u" \u2022 ".join(not_legal)
-            msg.description +="\n"+"**Restricted In**: "+"".join(restricted)
             msg.set_thumbnail(url=card['image_uri'])
 
-
+        end = time.time()
+        f = end - start
+        print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
         await self.bot.say(embed=msg)
 
 def setup(bot):

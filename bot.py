@@ -18,7 +18,7 @@ startup_extensions = [
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(game=discord.Game(name="Overwatch"))
+    await bot.change_presence(game=discord.Game(name="with myself..."))
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
