@@ -38,7 +38,7 @@ class Mtg():
         """
         start = time.time()
         parser = Arguments(add_help=False, allow_abbrev=False)
-        parser.add_argument('cardname', nargs="+")
+        parser.add_argument('cardname', nargs='+')
         parser.add_argument('-p', '--price', action='store_true')
         parser.add_argument('-o', '--oracle', action='store_true')
         parser.add_argument('-l', '--legality', action='store_true')
@@ -60,6 +60,7 @@ class Mtg():
             ne = re.sub(r'\', \'', ' ', ne)
             await self.bot.say(ne)
             return
+
         msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
         msg.title = "**" + card['name'] + "**"
         msg.description = ""
@@ -73,6 +74,8 @@ class Mtg():
             msg.description += card['type_line']+"\n"+card['oracle_text']
             if "Creature" in card['type_line']:
                 msg.description += "\n \n"+card['power']+"/"+card['toughness']
+            if "Planeswalker" in card['type_line']:
+                msg.description += "\n Starting loyalty: "+card['loyalty']
 
         if args.price:
             price = []
