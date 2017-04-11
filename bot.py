@@ -13,7 +13,8 @@ startup_extensions = [
     "cogs.mtg",
     "cogs.rng",
     "cogs.meta",
-    "cogs.fun"
+    "cogs.fun",
+    "cogs.admin"
 ]
 
 @bot.event
