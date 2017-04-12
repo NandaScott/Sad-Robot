@@ -14,7 +14,8 @@ startup_extensions = [
     "cogs.rng",
     "cogs.meta",
     "cogs.fun",
-    "cogs.admin"
+    "cogs.admin",
+    "cogs.data"
 ]
 
 @bot.event
