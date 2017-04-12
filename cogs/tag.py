@@ -61,14 +61,6 @@ class tag():
         finally:
             db.close()
 
-    @commands.command()
-    @checks.is_owner()
-    async def update(self, *, message : str):
-        args = re.split(', ', message)
-        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
-        cursor = db.cursor()
-        cursor.execute('''update ''')
-
 
 def setup(bot):
     bot.add_cog(tag(bot))
