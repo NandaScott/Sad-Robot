@@ -24,15 +24,18 @@ class tag():
             db.close()
 
     @commands.command()
-    @checks.is_owner()
     async def tag(self, *, message : str):
-        """Let's you reference images or quotes using keyword tags."""
+        """Let's you reference images or quotes using keyword tags.
+
+        Syntax: ?tag <image tag>
+        Can only fetch if you spelled the tag correctly.
+        """
         try:
             db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
             cursor = db.cursor()
             cursor.execute('''select url from tag where tag = '%s' ''' % message.lower())
             tag = cursor.fetchone()
-            msg = discord.Embed(color=discord.Color(0x1b6f9))
+            msg = discord.Embed(color=discord.Color(0x7ddd6e))
             msg.set_image(url=tag[0])
             await self.bot.say(embed=msg)
             db.close()
@@ -41,7 +44,6 @@ class tag():
             return
 
     @commands.command()
-    @checks.is_owner()
     async def make(self, *, message : str):
         try:
             args = re.split(', ', message)
@@ -58,6 +60,14 @@ class tag():
             return
         finally:
             db.close()
+
+    @commands.command()
+    @checks.is_owner()
+    async def update(self, *, message : str):
+        args = re.split(', ', message)
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+        cursor = db.cursor()
+        cursor.execute('''update ''')
 
 
 def setup(bot):
