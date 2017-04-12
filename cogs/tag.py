@@ -1,5 +1,6 @@
 from discord.ext import commands
 from .utils import checks
+from urllib.parse import urlparse
 import discord
 import sqlite3, re
 import os.path
@@ -8,6 +9,11 @@ class tag():
     def __init__(self, bot):
         self.bot = bot
 
+    # async def validate_url(arg):
+    #     parsed_url = urlparse(arg)
+    #     e = bool(parsed_url.scheme)
+    #     return e
+
     @commands.command(hidden=True)
     @checks.is_owner()
     async def db(self, *, command: str):
@@ -15,6 +21,7 @@ class tag():
         cursor = db.cursor()
         try:
             cursor.execute('''%s''' % command.lower())
+            await self.bot.say('Command successful.')
             db.commit()
         except Exception as e:
             db.rollback()
@@ -25,7 +32,7 @@ class tag():
 
     @commands.command()
     async def tag(self, *, message : str):
-        """Let's you reference images or quotes using keyword tags.
+        """Let's you reference images using keyword tags.
 
         Syntax: ?tag <image tag>
         Can only fetch if you spelled the tag correctly.
@@ -38,25 +45,36 @@ class tag():
             msg = discord.Embed(color=discord.Color(0x7ddd6e))
             msg.set_image(url=tag[0])
             await self.bot.say(embed=msg)
-            db.close()
-        except Exception as e:
-            await self.bot.say(str(e))
+        except Exception:
+            db.rollback()
+            await self.bot.say('Can\'t be found. Double check your spelling.')
             return
+        finally:
+            db.close()
 
     @commands.command()
     async def make(self, *, message : str):
+        """Used to add an image to the tag.
+
+        Syntax: ?make <tag>, <url>
+        Only accepts valid urls.
+        """
         try:
             args = re.split(', ', message)
             tag = str(args[0])
             url = str(args[1])
+            # val = validate_url(url)
+            # if val == False:
+            #     await self.bot.say('Invalid url.')
+            #     return
             db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
             cursor = db.cursor()
             cursor.execute('''insert into tag(tag, url) values(?,?) ''', (tag, url))
             await self.bot.say('Tag successfully inserted.')
             db.commit()
-        except Exception as e:
+        except Exception:
             db.rollback()
-            await self.bot.say(str(e))
+            await self.bot.say('Couldn\'t add tag. Check your syntax.')
             return
         finally:
             db.close()
