@@ -1,0 +1,29 @@
+{
+  "heros": {
+    "Genji":["Embrace your inner weeb."],
+    "McCree":["Reach for the sky!"],
+    "Pharah":["JUSTICE RAINS FROM-AAAUGH!"],
+    "Reaper":["Mom didn't hug me enough."],
+    "Soldier:76":["Call of Battlefield, Modern war games."],
+    "Sombra":["*Hacks you in spanish*"],
+    "Tracer":["Cheers love! The cavelry's queer!"],
+    "Bastion":["Beep Boop, fuck the red team."],
+    "Hanzo":["SAKE!"],
+    "Junkrat":["For when you don't need to aim."],
+    "Mei":["Fuck you."],
+    "Torbjörn":["'Cause we're on attack right?"],
+    "Widowmaker":["You won't switch and you know it."],
+    "D.va":[":wink:"],
+    "Orisa":["Neigh."],
+    "Reinhardt":["*Hanzo can you go Rein?*"],
+    "Roadhog":["One man a-pork-calypse."],
+    "Winston":["DICKS OUT FOR HARAMBE XDDDDDD"],
+    "Zarya":["CREDIT TO TEAM"],
+    "Ana":["Grandma says it's naptime"],
+    "Lucio":["I'm existing as best as I can."],
+    "Mercy":["Nice team wipe you had there."],
+    "Symmetra":[":musical_note: Tunak Tunak Tun Tunak Tunak Tun :musical_note:"],
+    "Zenyatta":["Show everyone how many balls you have."],
+
+  }
+}
