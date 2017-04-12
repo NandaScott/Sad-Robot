@@ -1,33 +1,32 @@
 from discord.ext import commands
 from .utils import checks
 import discord
-import sqlite3
+import sqlite3, re
 import os.path
 
-class data():
+class tag():
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(hidden=True)
     @checks.is_owner()
-    async def db(self):
-
+    async def db(self, *, command: str):
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
         cursor = db.cursor()
         try:
-            cursor.execute('''
-                create table tag(id integer primary key, url string, tag string)
-                ''')
+            cursor.execute('''%s''' % command.lower())
+            db.commit()
         except Exception as e:
+            db.rollback()
             await self.bot.say(str(e))
             return
-
-        db.commit()
-        db.close()
+        finally:
+            db.close()
 
     @commands.command()
+    @checks.is_owner()
     async def tag(self, *, message : str):
-            """Let's you reference images or quotes using keyword tags."""
+        """Let's you reference images or quotes using keyword tags."""
         try:
             db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
             cursor = db.cursor()
@@ -41,5 +40,25 @@ class data():
             await self.bot.say(str(e))
             return
 
+    @commands.command()
+    @checks.is_owner()
+    async def make(self, *, message : str):
+        try:
+            args = re.split(', ', message)
+            tag = str(args[0])
+            url = str(args[1])
+            db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+            cursor = db.cursor()
+            cursor.execute('''insert into tag(tag, url) values(?,?) ''', (tag, url))
+            await self.bot.say('Tag successfully inserted.')
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            await self.bot.say(str(e))
+            return
+        finally:
+            db.close()
+
+
 def setup(bot):
-    bot.add_cog(data(bot))
+    bot.add_cog(tag(bot))

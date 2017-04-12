@@ -21,19 +21,21 @@ class Mtg():
             return await response.read()
 
     @commands.command()
-    async def mtg(self, *, message : str):
+    async def mtg(self, *, cardname : str):
         """
         Fetches MTG cards.
 
         ?mtg <cardname> <argument(s)>
 
         positional arguments:
-        <cardname>    You must have a card to fetch for. The bot can correct spelling errors,
-                        but will also fetch Un-set cards so be careful. You also must have quotation marks.
+        <cardname>  You must have a card to fetch for.
+                    The bot can correct spelling errors, but will also fetch
+                    Un-set cards so be careful.
 
         optional arguments:
         -p, --price     Will fetch the price of the called card.
-        -o, --oracle    Will fetch the most recent oracle text of the called card.
+        -o, --oracle    Will fetch the most recent oracle text of the called
+                        card.
         -l, --legality  Will fetch the legalities of the card.
         """
         start = time.time()
@@ -45,7 +47,7 @@ class Mtg():
         parser.add_argument('-s', '--set', action='store_true')
 
         try:
-            args = parser.parse_args(shlex.split(message))
+            args = parser.parse_args(shlex.split(cardname))
         except Exception as e:
             await self.bot.say(str(e))
             return
