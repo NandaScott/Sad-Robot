@@ -20,7 +20,7 @@ class Admin:
     async def load(self, *, module : str):
         """Loads a module."""
         try:
-            self.bot.load_extension(module)
+            self.bot.load_extension("cogs.%s" % module)
         except Exception as e:
             await self.bot.say('\N{PISTOL}')
             await self.bot.say('{}: {}'.format(type(e).__name__, e))
@@ -32,7 +32,7 @@ class Admin:
     async def unload(self, *, module : str):
         """Unloads a module."""
         try:
-            self.bot.unload_extension(module)
+            self.bot.unload_extension("cogs.%s" % module)
         except Exception as e:
             await self.bot.say('\N{PISTOL}')
             await self.bot.say('{}: {}'.format(type(e).__name__, e))
@@ -44,8 +44,8 @@ class Admin:
     async def _reload(self, *, module : str):
         """Reloads a module."""
         try:
-            self.bot.unload_extension(module)
-            self.bot.load_extension(module)
+            self.bot.unload_extension("cogs.%s" % module)
+            self.bot.load_extension("cogs.%s" % module)
         except Exception as e:
             await self.bot.say('\N{PISTOL}')
             await self.bot.say('{}: {}'.format(type(e).__name__, e))

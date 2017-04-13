@@ -4,6 +4,7 @@ import argparse, shlex
 import re, time
 import random
 from discord.ext import commands
+from .utils import checks
 
 class Arguments(argparse.ArgumentParser):
     def error(self, message):
@@ -17,7 +18,6 @@ class Mtg():
 
     async def get_json(self, url, **kwargs):
         async with self.session.get(url, **kwargs) as response:
-            # print(response.status)
             return await response.read()
 
     @commands.command()
@@ -28,12 +28,13 @@ class Mtg():
         ?mtg <cardname> <argument(s)>
 
         positional arguments:
-        <cardname>    You must have a card to fetch for. The bot can correct spelling errors,
-                        but will also fetch Un-set cards so be careful. You also must have quotation marks.
+        <cardname>    You must have a card to fetch for. The bot can correct
+                        spelling errors, but will also fetch Un-set cards so be
+                        careful.
 
         optional arguments:
         -p, --price     Will fetch the price of the called card.
-        -o, --oracle    Will fetch the most recent oracle text of the called card.
+        -o, --oracle    Will fetch the most recent oracle text of the card.
         -l, --legality  Will fetch the legalities of the card.
         """
         start = time.time()
@@ -42,7 +43,7 @@ class Mtg():
         parser.add_argument('-p', '--price', action='store_true')
         parser.add_argument('-o', '--oracle', action='store_true')
         parser.add_argument('-l', '--legality', action='store_true')
-        parser.add_argument('-s', '--set', action='store_true')
+        parser.add_argument('-s', '--set', action='store', nargs=1)
 
         try:
             args = parser.parse_args(shlex.split(message))
@@ -50,7 +51,7 @@ class Mtg():
             await self.bot.say(str(e))
             return
 
-        data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname})
+        data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname, 'e:': args.set})
         card = json.loads(data.decode('utf-8'))
 
         if card['object'] == 'error':
@@ -67,10 +68,12 @@ class Mtg():
 
         if args.oracle is False and args.price is False and args.legality is False:
             msg.set_image(url=card['image_uri'])
+        else:
+            msg.set_thumbnail(url=card['image_uri'])
 
         if args.oracle:
-            msg.set_thumbnail(url=card['image_uri'])
-            msg.title +=" "+card['mana_cost']
+            if card['converted_mana_cost'] != "0.0":
+                msg.title +=" "+card['mana_cost']
             msg.description += card['type_line']+"\n"+card['oracle_text']
             if "Creature" in card['type_line']:
                 msg.description += "\n \n"+card['power']+"/"+card['toughness']
@@ -98,34 +101,51 @@ class Mtg():
                 msg.description += "Sorry, the price for this edition aren't available yet."
             else:
                 msg.description += "\n \n"+" ".join(price)
-            msg.set_thumbnail(url=card['image_uri'])
 
-        # This is spaghetti code but I couldn't iterate through it. Temp fix.
+
         if args.legality:
-            legal_in = []
-            not_legal = []
-            restricted =[]
-            legal_in.append('Standard') if card['legalities']['standard'] == "legal" else not_legal.append('Standard')
-            legal_in.append('Frontier') if card['legalities']['frontier'] == "legal" else not_legal.append('Frontier')
-            legal_in.append('Modern') if card['legalities']['modern'] == "legal" else not_legal.append('Modern')
-            legal_in.append('Pauper') if card['legalities']['pauper'] == "legal" else not_legal.append('Pauper')
-            legal_in.append('Legacy') if card['legalities']['legacy'] == "legal" else not_legal.append('Legacy')
-            legal_in.append('Penny Dreadful') if card['legalities']['penny'] == "legal" else not_legal.append('Penny Dreadful')
-            legal_in.append('Duel Comm.') if card['legalities']['duel'] == "legal" else not_legal.append('Duel Comm.')
-            legal_in.append('Commander') if card['legalities']['commander'] == "legal" else not_legal.append('Commander')
-            #Vintage is a special case since it's the only format with restrictions.
-            if card['legalities']['vintage'] == 'restricted':
-                restricted.append('Vintage')
-                msg.description +="\n"+"**Restricted In**: "+"".join(restricted)
+            legal = []
+            illegal = []
+            banned = []
+            for key, value in card['legalities'].items():
+                if value == "restricted":
+                    msg.description += "**Restricted In**: "+key[:1].upper()+key[1:]
+                if value == "legal":
+                    legal.append(key[:1].upper()+key[1:])
+                if value == "not_legal":
+                    illegal.append(key[:1].upper()+key[1:])
+                if value == "banned":
+                    banned.append(key[:1].upper()+key[1:])
+
+            if not illegal and not banned:
+                msg.description +="\n \n **Legal In**: "+u" \u2022 ".join(legal)
             else:
-                legal_in.append('Vintage') if card['legalities']['vintage'] == "legal" else not_legal.append('Vintage')
-            msg.description +="\n \n"+"**Legal In**: "+u" \u2022 ".join(legal_in)+"\n **Not Legal In**: "+u" \u2022 ".join(not_legal)
-            msg.set_thumbnail(url=card['image_uri'])
+                msg.description += "\n **Not Legal In**: "+u" \u2022 ".join(illegal)+"\n **Banned In**: "+u" \u2022 ".join(banned)
 
         end = time.time()
         f = end - start
         print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
         await self.bot.say(embed=msg)
+
+
+    # @commands.command()
+    # @checks.is_owner()
+    # async def spoilers(self, *, set_name : str):
+    #     while True:
+    #         data = await self.get_json(url='http://api.scryfall.com/cards/search?', params={'q':'++e:akh', 'order':'spoiler'})
+    #         decoded_json = json.loads(data.decode('utf-8'))
+    #         count = decoded_json['total_cards']
+    #         msg = discord.Embed(color=discord.Color(0xa8ff6b))
+    #         msg.title = "**New Spoilers**"
+    #         if count > decoded_json['total_cards']:
+    #             for card in range(count, decoded_json['total_cards']):
+    #                 msg.description += "["+decoded_json['data'][incr]['name']+"]("+decoded_json['data'][incr]['scryfall_uri']+")"
+    #                 incr += 1
+    #         time.sleep(600)
+    #     await self.bot.say(embed=msg)
+
+
+
 
 def setup(bot):
     bot.add_cog(Mtg(bot))
