@@ -104,23 +104,9 @@ class Mtg():
 
 
         if args.legality:
-            legal = []
-            illegal = []
-            banned = []
             for key, value in card['legalities'].items():
-                if value == "restricted":
-                    msg.description += "**Restricted In**: "+key[:1].upper()+key[1:]
-                if value == "legal":
-                    legal.append(key[:1].upper()+key[1:])
-                if value == "not_legal":
-                    illegal.append(key[:1].upper()+key[1:])
-                if value == "banned":
-                    banned.append(key[:1].upper()+key[1:])
+                msg.add_field(name=key[:1].upper()+key[1:], value=re.sub('_', " ", value[:1].upper()+value[1:]), inline=True)
 
-            if not illegal and not banned:
-                msg.description +="\n \n **Legal In**: "+u" \u2022 ".join(legal)
-            else:
-                msg.description += "\n **Not Legal In**: "+u" \u2022 ".join(illegal)+"\n **Banned In**: "+u" \u2022 ".join(banned)
 
         end = time.time()
         f = end - start
