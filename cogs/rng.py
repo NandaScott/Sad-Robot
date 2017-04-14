@@ -25,7 +25,7 @@ class RNG():
         try:
             await self.bot.say(random.choice(re.split(', | or ', choices)))
         except Exception:
-            await self.bot.say('Format should be choice1, choice2')
+            await self.bot.say('Format should be <choice1>, <choice2>. You can also <choice1> or <choice2>. ')
             return
 
     @commands.command()

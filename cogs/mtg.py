@@ -4,7 +4,7 @@ import argparse, shlex
 import re, time
 import random
 from discord.ext import commands
-from .utils import checks
+from .utils import checks, tools
 
 class Arguments(argparse.ArgumentParser):
     def error(self, message):
@@ -55,7 +55,8 @@ class Mtg():
         card = json.loads(data.decode('utf-8'))
 
         if card['object'] == 'error':
-            e = card['details']
+            # TO DO: refactor this
+            # e = tools.stripper("\[\'|\'\]|\', \'", " ", card['details'])
             ne = re.sub(r'\[\'', '', e)
             ne = re.sub(r'\'\]', '', ne)
             ne = re.sub(r'\', \'', ' ', ne)
@@ -81,31 +82,26 @@ class Mtg():
                 msg.description += "\n Starting loyalty: "+card['loyalty']
 
         if args.price:
-            price = []
-            try:
-                if card['usd']:
-                    price.append("**USD**: "+ '${:,.2f}'.format(float(card['usd'])))
-            except:
-                pass
-            try:
-                if card['eur']:
-                    price.append(u"\u2022"+" **EUR**: "+'€{:,.2f}'.format(float(card['eur'])))
-            except:
-                pass
-            try:
-                if card['tix']:
-                    price.append(u"\u2022"+" **TIX**: "+'{:,.2f}'.format(float(card['tix'])))
-            except:
-                pass
-            if price == None:
-                msg.description += "Sorry, the price for this edition aren't available yet."
-            else:
-                msg.description += "\n \n"+" ".join(price)
+                try:
+                    msg.add_field(name="USD", value='${:,.2f}'.format(float(card['usd'])))
+                except KeyError:
+                    pass
+
+                try:
+                    msg.add_field(name="EUR", value='€{:,.2f}'.format(float(card['eur'])))
+                except KeyError:
+                    pass
+
+                try:
+                    msg.add_field(name="TIX", value='{:,.2f}'.format(float(card['tix'])))
+                except KeyError:
+                    pass
 
 
         if args.legality:
             for key, value in card['legalities'].items():
                 msg.add_field(name=key[:1].upper()+key[1:], value=re.sub('_', " ", value[:1].upper()+value[1:]), inline=True)
+
 
 
         end = time.time()
@@ -114,21 +110,27 @@ class Mtg():
         await self.bot.say(embed=msg)
 
 
-    # @commands.command()
-    # @checks.is_owner()
-    # async def spoilers(self, *, set_name : str):
-    #     while True:
-    #         data = await self.get_json(url='http://api.scryfall.com/cards/search?', params={'q':'++e:akh', 'order':'spoiler'})
-    #         decoded_json = json.loads(data.decode('utf-8'))
-    #         count = decoded_json['total_cards']
-    #         msg = discord.Embed(color=discord.Color(0xa8ff6b))
-    #         msg.title = "**New Spoilers**"
-    #         if count > decoded_json['total_cards']:
-    #             for card in range(count, decoded_json['total_cards']):
-    #                 msg.description += "["+decoded_json['data'][incr]['name']+"]("+decoded_json['data'][incr]['scryfall_uri']+")"
-    #                 incr += 1
-    #         time.sleep(600)
-    #     await self.bot.say(embed=msg)
+    #background task under development
+    async def spoilers():
+        await client.wait_until_ready()
+        counter = 0
+        channel = discord.PrivateChannel(id='283755208050212864')
+        while not client.is_closed:
+            counter += 1
+            await bot.send_message(channel, counter)
+            await asyncio.sleep(60)
+        # while True:
+        #     data = await self.get_json(url='http://api.scryfall.com/cards/search?', params={'q':'++e:akh', 'order':'spoiler'})
+        #     decoded_json = json.loads(data.decode('utf-8'))
+        #     count = decoded_json['total_cards']
+        #     msg = discord.Embed(color=discord.Color(0xa8ff6b))
+        #     msg.title = "**New Spoilers**"
+        #     if count > decoded_json['total_cards']:
+        #         for card in range(count, decoded_json['total_cards']):
+        #             msg.description += "["+decoded_json['data'][incr]['name']+"]("+decoded_json['data'][incr]['scryfall_uri']+")"
+        #             incr += 1
+        #     await asyncio.sleep(600)
+        # await self.bot.say(embed=msg)
 
 
 
