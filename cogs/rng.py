@@ -1,11 +1,13 @@
 import random
 import re
 import json
+import aiohttp, discord
 from discord.ext import commands
 
 class RNG():
     def __init__(self, bot):
         self.bot = bot
+        self.session = aiohttp.ClientSession()
 
     @commands.command()
     async def roll(self, dice : str):
@@ -73,6 +75,14 @@ class RNG():
         "Nigga no."
         ])
         await self.bot.say(responses)
+
+    @commands.command()
+    async def cat(self):
+        async with self.session.get('http://random.cat/meow') as r:
+            js = await r.json()
+        msg = discord.Embed(color=discord.Color(0x8e75ff))
+        msg.set_image(url=js['file'])
+        await self.bot.say(embed=msg)
 
 
 def setup(bot):
