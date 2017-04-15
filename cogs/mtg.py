@@ -13,12 +13,8 @@ class Arguments(argparse.ArgumentParser):
 class Mtg():
     def __init__(self, bot):
         self.bot = bot
-        loop = asyncio.get_event_loop()
-        self.session = aiohttp.ClientSession(loop=loop)
+        self.session = aiohttp.ClientSession()
 
-    async def get_json(self, url, **kwargs):
-        async with self.session.get(url, **kwargs) as response:
-            return await response.read()
 
     @commands.command()
     async def mtg(self, *, message : str):
@@ -37,6 +33,7 @@ class Mtg():
         -o, --oracle    Will fetch the most recent oracle text of the card.
         -l, --legality  Will fetch the legalities of the card.
         """
+
         start = time.time()
         parser = Arguments(add_help=False, allow_abbrev=False)
         parser.add_argument('cardname', nargs='+')
@@ -51,8 +48,8 @@ class Mtg():
             await self.bot.say(str(e))
             return
 
-        data = await self.get_json(url='http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname, 'e:': args.set})
-        card = json.loads(data.decode('utf-8'))
+        async with self.session.get('http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname, 'e:': args.set}) as data:
+            card = await data.json()
 
         if card['object'] == 'error':
             # TO DO: refactor this
@@ -112,12 +109,11 @@ class Mtg():
 
     #background task under development
     async def spoilers():
-        await client.wait_until_ready()
+        await bot.wait_until_ready()
         counter = 0
-        channel = discord.PrivateChannel(id='283755208050212864')
-        while not client.is_closed:
+        while not bot.is_closed:
             counter += 1
-            await bot.send_message(channel, counter)
+            await bot.send_message(bot.get_channel('283755208050212864'), counter)
             await asyncio.sleep(60)
         # while True:
         #     data = await self.get_json(url='http://api.scryfall.com/cards/search?', params={'q':'++e:akh', 'order':'spoiler'})
@@ -131,8 +127,6 @@ class Mtg():
         #             incr += 1
         #     await asyncio.sleep(600)
         # await self.bot.say(embed=msg)
-
-
 
 
 def setup(bot):

@@ -74,5 +74,6 @@ class RNG():
         ])
         await self.bot.say(responses)
 
+
 def setup(bot):
     bot.add_cog(RNG(bot))
