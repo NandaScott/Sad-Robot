@@ -94,39 +94,15 @@ class Mtg():
                 except KeyError:
                     pass
 
-
         if args.legality:
             for key, value in card['legalities'].items():
                 msg.add_field(name=key[:1].upper()+key[1:], value=re.sub('_', " ", value[:1].upper()+value[1:]), inline=True)
-
-
 
         end = time.time()
         f = end - start
         print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
         await self.bot.say(embed=msg)
 
-
-    #background task under development
-    async def spoilers():
-        await bot.wait_until_ready()
-        counter = 0
-        while not bot.is_closed:
-            counter += 1
-            await bot.send_message(bot.get_channel('283755208050212864'), counter)
-            await asyncio.sleep(60)
-        # while True:
-        #     data = await self.get_json(url='http://api.scryfall.com/cards/search?', params={'q':'++e:akh', 'order':'spoiler'})
-        #     decoded_json = json.loads(data.decode('utf-8'))
-        #     count = decoded_json['total_cards']
-        #     msg = discord.Embed(color=discord.Color(0xa8ff6b))
-        #     msg.title = "**New Spoilers**"
-        #     if count > decoded_json['total_cards']:
-        #         for card in range(count, decoded_json['total_cards']):
-        #             msg.description += "["+decoded_json['data'][incr]['name']+"]("+decoded_json['data'][incr]['scryfall_uri']+")"
-        #             incr += 1
-        #     await asyncio.sleep(600)
-        # await self.bot.say(embed=msg)
 
 
 def setup(bot):

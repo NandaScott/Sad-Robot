@@ -49,7 +49,7 @@ class RNG():
         ])
         await self.bot.say(lenny)
 
-    @commands.command()
+    @commands.command(name='8ball')
     async def fortune(self):
         """Works like an 8ball. Ask it a question."""
         responses = random.choice([
@@ -78,6 +78,10 @@ class RNG():
 
     @commands.command()
     async def cat(self):
+        """Displays a random cat image
+
+        You really need help with this one?
+        """
         async with self.session.get('http://random.cat/meow') as r:
             js = await r.json()
         msg = discord.Embed(color=discord.Color(0x8e75ff))

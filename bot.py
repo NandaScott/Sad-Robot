@@ -17,6 +17,7 @@ startup_extensions = [
     "cogs.admin"
 ]
 
+
 @bot.event
 async def on_ready():
     await bot.change_presence(game=discord.Game(name="with myself..."))
