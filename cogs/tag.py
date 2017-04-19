@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import discord
 import sqlite3, re
 import os.path
+import traceback
 
 class tag():
     def __init__(self, bot):
@@ -60,20 +61,18 @@ class tag():
         Syntax: ?make <tag>, <url>
         Only accepts valid urls.
         """
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+        cursor = db.cursor()
         try:
-            message = ctx.message
-            args = re.split(', ', message.lower())
-            tag = str(args[0])
-            url = str(args[1])
-            author = ctx.message.author
-            db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
-            cursor = db.cursor()
-            cursor.execute('''insert into tag(tag, url, author) values(?,?,?) ''', (tag, url, author))
+            message = ctx.message.content
+            (_, tag, url) = re.split(' ', message)
+            author = ctx.message.author.id
+            cursor.execute('''insert into tag(tag, url, author) values(?,?,?)''', (tag, url, author))
             await self.bot.say('Tag successfully inserted.')
             db.commit()
-        except Exception as e:
+        except Exception:
             db.rollback()
-            await self.bot.say('{}: {}'.format(type(e).__name__, e))
+            await self.bot.say(traceback.format_exc())
             return
         finally:
             db.close()
