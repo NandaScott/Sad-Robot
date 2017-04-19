@@ -6,7 +6,7 @@ import sqlite3, re
 import os.path
 import traceback
 
-class tag():
+class Tag():
     def __init__(self, bot):
         self.bot = bot
 
@@ -31,16 +31,14 @@ class tag():
         finally:
             db.close()
 
-    @commands.command()
-    async def tag(self, *, message : str):
+    @commands.group(pass_context=True, invoke_without_command=True)
+    @checks.is_owner()
+    async def tag(self, ctx, *, message : str):
         """Let's you reference images using keyword tags.
-
-        Syntax: ?tag <image tag>
-        Can only fetch if you spelled the tag correctly.
         """
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+        cursor = db.cursor()
         try:
-            db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
-            cursor = db.cursor()
             cursor.execute('''select url from tag where tag = '%s' ''' % message.lower())
             tag = cursor.fetchone()
             msg = discord.Embed(color=discord.Color(0x7ddd6e))
@@ -53,21 +51,21 @@ class tag():
         finally:
             db.close()
 
-    @commands.command(pass_context=True)
+    @tag.command(pass_context=True)
     @checks.is_owner()
-    async def make(self, ctx):
+    async def make(self, ctx, *, message : str):
         """Used to add an image to the tag.
 
-        Syntax: ?make <tag>, <url>
+        Syntax: ?make <tag> <url>
         Only accepts valid urls.
         """
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
         cursor = db.cursor()
         try:
-            message = ctx.message.content
-            (_, tag, url) = re.split(' ', message)
+            (tag, url) = re.match("(?P<tag>.*?) (?P<url>[^ ]*)$", message).groups()
             author = ctx.message.author.id
-            cursor.execute('''insert into tag(tag, url, author) values(?,?,?)''', (tag, url, author))
+            server_id = ctx.message.server.id
+            cursor.execute('''insert into tag(tag, url, author, server_id) values(?,?,?,?)''', (tag, url, author, server_id))
             await self.bot.say('Tag successfully inserted.')
             db.commit()
         except Exception:
@@ -79,4 +77,4 @@ class tag():
 
 
 def setup(bot):
-    bot.add_cog(tag(bot))
+    bot.add_cog(Tag(bot))

@@ -44,7 +44,7 @@ class Mtg():
         parser.add_argument('-s', '--set', action='store', nargs=1)
 
         try:
-            args = parser.parse_args(shlex.split(cardname))
+            args = parser.parse_args(shlex.split(re.sub(r"\'", "", cardname)))
         except Exception as e:
             await self.bot.say(str(e))
             return
