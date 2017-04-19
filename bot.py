@@ -15,7 +15,7 @@ startup_extensions = [
     "cogs.meta",
     "cogs.fun",
     "cogs.admin",
-    "cogs.tag"
+    "cogs.tagging"
 ]
 
 

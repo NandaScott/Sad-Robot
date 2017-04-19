@@ -1,19 +1,13 @@
 from discord.ext import commands
 from .utils import checks
-from urllib.parse import urlparse
 import discord
 import sqlite3, re
 import os.path
 import traceback
 
-class Tag():
+class Tagging():
     def __init__(self, bot):
         self.bot = bot
-
-    # async def validate_url(arg):
-    #     parsed_url = urlparse(arg)
-    #     e = bool(parsed_url.scheme)
-    #     return e
 
     @commands.command(hidden=True)
     @checks.is_owner()
@@ -38,7 +32,13 @@ class Tag():
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
         cursor = db.cursor()
         try:
-            cursor.execute('''select url from tag where tag = '%s' ''' % message.lower())
+            try:
+                cursor.execute('''select url from tag where tag=? and author=? and server_id=?''', (message.lower(), ctx.message.author.id, ctx.message.server.id))
+            except Exception:
+                db.rollback()
+                db.close()
+                await self.bot.say("You cannot access that tag.")
+                return
             tag = cursor.fetchone()
             msg = discord.Embed(color=discord.Color(0x7ddd6e))
             msg.set_image(url=tag[0])
@@ -52,14 +52,10 @@ class Tag():
         finally:
             db.close()
 
-    @tag.command(pass_context=True)
+    @tag.command(pass_context=True, aliases=['add'])
     @checks.is_owner()
     async def make(self, ctx, *, message : str):
-        """Used to add an image to the tag.
-
-        Syntax: ?make <tag> <url>
-        Only accepts valid urls.
-        """
+        """Used to add an image to the tag."""
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
         cursor = db.cursor()
         try:
@@ -76,6 +72,54 @@ class Tag():
         finally:
             db.close()
 
+    @tag.command(pass_context=True)
+    @checks.is_owner()
+    async def search(self, ctx):
+        """Null"""
+        pass
+
+    @tag.command(pass_context=True)
+    @checks.is_owner()
+    async def raw(self, ctx, *, message:str):
+        """Returns the raw tag url that you own."""
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+        cursor = db.cursor()
+        try:
+            try:
+                cursor.execute('''select url from tag where tag=? and author=? and server_id=?''', (message.lower(), ctx.message.author.id, ctx.message.server.id))
+            except Exception:
+                db.rollback()
+                db.close()
+                await self.bot.say("You cannot access that tag.")
+                return
+            tag = cursor.fetchone()
+            await self.bot.say(tag[0])
+            cursor.execute('''update tag set number_of_uses = number_of_uses + 1 where tag = '%s' ''' % message.lower())
+            db.commit()
+        except Exception:
+            db.rollback()
+            await self.bot.say(traceback.format_exc())
+            return
+        finally:
+            db.close()
+
+    @tag.command(pass_context=True)
+    @checks.is_owner()
+    async def edit(self, ctx, *, message:str):
+        """Broken."""
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+        cursor = db.cursor
+        try:
+            cursor.execute('''update tag set tag=? url=? where author=? and server_id=? ''', (tag, url, ctx.message.author.id, ctx.message.server.id))
+            db.commit()
+            await self.bot.say("Tag has been updated.")
+        except Exception:
+            db.rollback()
+            await self.bot.say(traceback.format_exc())
+            return
+        finally:
+            db.close()
+
 
 def setup(bot):
-    bot.add_cog(Tag(bot))
+    bot.add_cog(Tagging(bot))

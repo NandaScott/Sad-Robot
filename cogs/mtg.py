@@ -16,7 +16,7 @@ class Mtg():
         self.session = aiohttp.ClientSession()
 
 
-    @commands.command()
+    @commands.command(aliases=['MTG', 'Mtg'])
     async def mtg(self, *, cardname : str):
         """
         Fetches MTG cards.
