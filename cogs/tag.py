@@ -34,8 +34,7 @@ class Tag():
     @commands.group(pass_context=True, invoke_without_command=True)
     @checks.is_owner()
     async def tag(self, ctx, *, message : str):
-        """Let's you reference images using keyword tags.
-        """
+        """Let's you reference images using keyword tags."""
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
         cursor = db.cursor()
         try:
@@ -44,9 +43,11 @@ class Tag():
             msg = discord.Embed(color=discord.Color(0x7ddd6e))
             msg.set_image(url=tag[0])
             await self.bot.say(embed=msg)
+            cursor.execute('''update tag set number_of_uses = number_of_uses + 1 where tag = '%s' ''' % message.lower())
+            db.commit()
         except Exception:
             db.rollback()
-            await self.bot.say('Can\'t be found. Double check your spelling.')
+            await self.bot.say(traceback.format_exc())
             return
         finally:
             db.close()
