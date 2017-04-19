@@ -52,29 +52,28 @@ class tag():
         finally:
             db.close()
 
-    @commands.command()
-    async def make(self, *, message : str):
+    @commands.command(pass_context=True)
+    @checks.is_owner()
+    async def make(self, ctx):
         """Used to add an image to the tag.
 
         Syntax: ?make <tag>, <url>
         Only accepts valid urls.
         """
         try:
-            args = re.split(', ', message)
+            message = ctx.message
+            args = re.split(', ', message.lower())
             tag = str(args[0])
             url = str(args[1])
-            # val = validate_url(url)
-            # if val == False:
-            #     await self.bot.say('Invalid url.')
-            #     return
+            author = ctx.message.author
             db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
             cursor = db.cursor()
-            cursor.execute('''insert into tag(tag, url) values(?,?) ''', (tag, url))
+            cursor.execute('''insert into tag(tag, url, author) values(?,?,?) ''', (tag, url, author))
             await self.bot.say('Tag successfully inserted.')
             db.commit()
-        except Exception:
+        except Exception as e:
             db.rollback()
-            await self.bot.say('Couldn\'t add tag. Check your syntax.')
+            await self.bot.say('{}: {}'.format(type(e).__name__, e))
             return
         finally:
             db.close()

@@ -44,11 +44,7 @@ class Mtg():
         parser.add_argument('-s', '--set', action='store', nargs=1)
 
         try:
-<<<<<<< HEAD
             args = parser.parse_args(shlex.split(cardname))
-=======
-            args = parser.parse_args(shlex.split(re.sub(r"\'", "", message)))
->>>>>>> nanda/fix/mtg_refactor
         except Exception as e:
             await self.bot.say(str(e))
             return
