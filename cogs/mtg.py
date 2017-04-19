@@ -34,7 +34,7 @@ class Mtg():
         -l, --legality  Will fetch the legalities of the card.
         """
 
-        start = time.time()
+        # start = time.time()
         parser = Arguments(add_help=False, allow_abbrev=False)
         parser.add_argument('cardname', nargs='+')
         parser.add_argument('-p', '--price', action='store_true')
@@ -43,7 +43,7 @@ class Mtg():
         parser.add_argument('-s', '--set', action='store', nargs=1)
 
         try:
-            args = parser.parse_args(shlex.split(message))
+            args = parser.parse_args(shlex.split(re.sub(r"\'", "", message)))
         except Exception as e:
             await self.bot.say(str(e))
             return
@@ -54,6 +54,7 @@ class Mtg():
         if card['object'] == 'error':
             # TO DO: refactor this
             # e = tools.stripper("\[\'|\'\]|\', \'", " ", card['details'])
+            e = card['details']
             ne = re.sub(r'\[\'', '', e)
             ne = re.sub(r'\'\]', '', ne)
             ne = re.sub(r'\', \'', ' ', ne)
@@ -98,10 +99,50 @@ class Mtg():
             for key, value in card['legalities'].items():
                 msg.add_field(name=key[:1].upper()+key[1:], value=re.sub('_', " ", value[:1].upper()+value[1:]), inline=True)
 
-        end = time.time()
-        f = end - start
-        print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
+        # end = time.time()
+        # f = end - start
+        # print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
         await self.bot.say(embed=msg)
+    #===================
+    #===================
+    #This doesn't work yet. So will revisit at a later date.
+
+    async def request(self, cardname):
+        url = 'http://api.scryfall.com/cards/named?' + 'fuzzy=' + '+'.join(cardname)
+        async with self.session.get(url) as data:
+            card = await data.json()
+            return await card
+
+    @commands.group(hidden=True)
+    @checks.is_owner()
+    async def mtg2(self, *, cardname : str):
+        """Fetches a magic card."""
+        card = self.request(cardname)
+        msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
+        msg.title = "**" + card['name'] + "**"
+        msg.set_image(url=card['image_uri'])
+        await self.bot.say(embed=msg)
+
+
+    @mtg2.command(name='-p')
+    @checks.is_owner()
+    async def price(self):
+        """ Fetches the price of the magic card """
+
+        try:
+            msg.add_field(name="USD", value='${:,.2f}'.format(float(card['usd'])))
+        except KeyError:
+            pass
+
+        try:
+            msg.add_field(name="EUR", value='€{:,.2f}'.format(float(card['eur'])))
+        except KeyError:
+            pass
+
+        try:
+            msg.add_field(name="TIX", value='{:,.2f}'.format(float(card['tix'])))
+        except KeyError:
+            pass
 
 
 

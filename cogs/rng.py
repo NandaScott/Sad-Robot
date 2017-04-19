@@ -3,6 +3,7 @@ import re
 import json
 import aiohttp, discord
 from discord.ext import commands
+from .utils import checks
 
 class RNG():
     def __init__(self, bot):
@@ -31,6 +32,7 @@ class RNG():
             return
 
     @commands.command()
+    @checks.is_owner()
     async def rhero(self):
         """For choosing a random Overwatch hero."""
         async with open('/lib/temp_data.json') as data_file:
