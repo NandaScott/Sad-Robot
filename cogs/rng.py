@@ -1,10 +1,14 @@
 import random
 import re
+import json
+import aiohttp, discord
 from discord.ext import commands
+from .utils import checks
 
 class RNG():
     def __init__(self, bot):
         self.bot = bot
+        self.session = aiohttp.ClientSession()
 
     @commands.command()
     async def roll(self, dice : str):
@@ -24,39 +28,18 @@ class RNG():
         try:
             await self.bot.say(random.choice(re.split(', | or ', choices)))
         except Exception:
-            await self.bot.say('Format should be choice1, choice2')
+            await self.bot.say('Format should be <choice1>, <choice2>. You can also <choice1> or <choice2>. ')
             return
 
     @commands.command()
+    @checks.is_owner()
     async def rhero(self):
         """For choosing a random Overwatch hero."""
-        heros=random.choice([
-        'Genji. Embrace your inner weeb.',
-        'Mccree. Reach for the sky!',
-        'Pharah. JUSTICE RAINS FROM-AAAUGH!',
-        'Reaper. Mom didn\'t hug me enough.',
-        'Soldier:76. Call of Battlefield, Modern war games.',
-        'Sombra. *Hacks you in spanish*',
-        'Tracer. Cheers love! The cavelry\'s queer!',
-        'Bastion. Beep Boop, fuck the red team.',
-        'Hanzo. SAKE!',
-        'Junkrat. For when you don\'t need to aim.',
-        'Mei. Fuck you.',
-        'Torbjörn. Cause we\'re on attack right?',
-        'Widowmaker. You won\'t switch and you know it.',
-        'D.va. :wink:',
-        'Orisa. Neigh.',
-        'Reinhardt. *Hanzo can you go Rein?*',
-        'Roadhog. One man a-pork-calypse.',
-        'Winston. DICKS OUT FOR HARAMBE XDDDDDD.',
-        'Zarya. CREDIT TO TEAM.',
-        'Ana. Grandma says it\'s naptime.',
-        'Lucio. I\'m existing as best as I can.',
-        'Mercy. Nice team wipe you had there.',
-        'Symmetra. :musical_note: Tunak Tunak Tun Tunak Tunak Tun :musical_note:',
-        'Zenyatta. Show everyone how many balls you have.'
-        ])
-        await self.bot.say(heros)
+        async with open('/lib/temp_data.json') as data_file:
+            data = json.load(data_file)
+            heros = random.sample(data['heros'], 1)
+            await self.bot.say(heros)
+
 
     @commands.command()
     async def lenny(self):
@@ -68,7 +51,7 @@ class RNG():
         ])
         await self.bot.say(lenny)
 
-    @commands.command()
+    @commands.command(name='8ball')
     async def fortune(self):
         """Works like an 8ball. Ask it a question."""
         responses = random.choice([
@@ -94,6 +77,19 @@ class RNG():
         "Nigga no."
         ])
         await self.bot.say(responses)
+
+    @commands.command()
+    async def cat(self):
+        """Displays a random cat image
+
+        You really need help with this one?
+        """
+        async with self.session.get('http://random.cat/meow') as r:
+            js = await r.json()
+        msg = discord.Embed(color=discord.Color(0x8e75ff))
+        msg.set_image(url=js['file'])
+        await self.bot.say(embed=msg)
+
 
 def setup(bot):
     bot.add_cog(RNG(bot))

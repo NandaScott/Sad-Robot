@@ -47,8 +47,7 @@ class Admin:
             self.bot.unload_extension("cogs.%s" % module)
             self.bot.load_extension("cogs.%s" % module)
         except Exception as e:
-            await self.bot.say('\N{PISTOL}')
-            await self.bot.say('{}: {}'.format(type(e).__name__, e))
+            await self.bot.say('\N{PISTOL} \n {}: {}'.format(type(e).__name__, e))
         else:
             await self.bot.say('\N{OK HAND SIGN}')
 
