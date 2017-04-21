@@ -17,6 +17,22 @@ class Admin:
 
     @commands.command(hidden=True)
     @checks.is_owner()
+    async def db(self, *, command: str):
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+        cursor = db.cursor()
+        try:
+            cursor.execute('''%s''' % command.lower())
+            await self.bot.say('Command successful.')
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            await self.bot.say(str(e))
+            return
+        finally:
+            db.close()
+
+    @commands.command(hidden=True)
+    @checks.is_owner()
     async def load(self, *, module : str):
         """Loads a module."""
         try:

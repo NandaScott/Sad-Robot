@@ -35,7 +35,7 @@ class Mtg():
         -l, --legality  Will fetch the legalities of the card.
         """
 
-        # start = time.time()
+        start = time.time()
         parser = Arguments(add_help=False, allow_abbrev=False)
         parser.add_argument('cardname', nargs='+')
         parser.add_argument('-p', '--price', action='store_true')
@@ -100,9 +100,9 @@ class Mtg():
             for key, value in card['legalities'].items():
                 msg.add_field(name=key[:1].upper()+key[1:], value=re.sub('_', " ", value[:1].upper()+value[1:]), inline=True)
 
-        # end = time.time()
-        # f = end - start
-        # print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
+        end = time.time()
+        f = end - start
+        print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
         await self.bot.say(embed=msg)
     #===================
     #===================

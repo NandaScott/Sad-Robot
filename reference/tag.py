@@ -1,11 +1,29 @@
 from discord.ext import commands
 from .utils import checks
-import discord, sqlite3, re, os.path, traceback
+import discord
+import sqlite3, re
+import os.path
+import traceback
 
-class Tag():
-    """These are the commands that are related to the tag function."""
+class TagAlias():
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command(hidden=True)
+    @checks.is_owner()
+    async def db(self, *, command: str):
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+        cursor = db.cursor()
+        try:
+            cursor.execute('''%s''' % command.lower())
+            await self.bot.say('Command successful.')
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            await self.bot.say(str(e))
+            return
+        finally:
+            db.close()
 
     @commands.group(pass_context=True, invoke_without_command=True)
     @checks.is_owner()
@@ -56,6 +74,12 @@ class Tag():
 
     @tag.command(pass_context=True)
     @checks.is_owner()
+    async def search(self, ctx):
+        """Null"""
+        pass
+
+    @tag.command(pass_context=True)
+    @checks.is_owner()
     async def raw(self, ctx, *, message:str):
         """Returns the raw tag url that you own."""
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
@@ -79,17 +103,45 @@ class Tag():
         finally:
             db.close()
 
+    @tag.group(pass_context=True)
+    @checks.is_owner()
+    async def edit(self, *, command:str):
+        """Broken."""
+        pass
+
+    @edit.command(pass_context=True)
+    @checks.is_owner()
+    async def tag(self, ctx, *, message:str):
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+        cursor = db.cursor()
+        try:
+            (tag, ntag) = re.match("(?P<tag>.*?) (?P<ntag>.*?)", message).groups()
+            cursor.execute('''update tag set tag=? where tag=? and author=? and server_id=? ''', (ntag, tag, ctx.message.author.id, ctx.message.server.id))
+            db.commit()
+            await self.bot.say("Tag has been updated.")
+        except Exception:
+            db.rollback()
+            await self.bot.say(traceback.format_exc())
+            return
+        finally:
+            db.close()
+
+    @edit.command(pass_context=True)
+    @checks.is_owner()
+    async def url(self, ctx, *, message:str):
+        pass
+
     # @tag.command(pass_context=True)
     # @checks.is_owner()
-    # async def info(self, ctx):
+    # async def info(self, ctx, *, tag:str):
     #     db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
     #     cursor = db.cursor()
-    #     cursor.execute('''select * from tag where author=? and server_id=?''', (ctx.message.author.id, ctx.message.server.id))
+    #     cursor.execute('''select * from tag where author=? and server_id=?''', (ctx.message.author.id, ctx.message.author.id))
     #     info = cursor.fetchall()
     #     msg = discord.Embed(color=discord.Color(0x7ddd6e))
-    #     await self.bot.say(info)
+
 
 
 
 def setup(bot):
-    bot.add_cog(Tag(bot))
+    bot.add_cog(TagAlias(bot))

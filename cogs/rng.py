@@ -6,6 +6,7 @@ from discord.ext import commands
 from .utils import checks
 
 class RNG():
+    """For when you don't want bias."""
     def __init__(self, bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
@@ -35,7 +36,7 @@ class RNG():
     @checks.is_owner()
     async def rhero(self):
         """For choosing a random Overwatch hero."""
-        async with open('/lib/temp_data.json') as data_file:
+        async with open('') as data_file:
             data = json.load(data_file)
             heros = random.sample(data['heros'], 1)
             await self.bot.say(heros)
