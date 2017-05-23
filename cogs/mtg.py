@@ -1,8 +1,7 @@
 import asyncio, aiohttp, json
 import discord
 import argparse, shlex
-import re, time
-import random
+import re, time, urllib
 from discord.ext import commands
 from .utils import checks, tools
 
@@ -29,15 +28,14 @@ class Mtg():
                     Un-set cards so be careful.
 
         optional arguments:
-        -p, --price     Will fetch the price of the called card.
-        -o, --oracle    Will fetch the most recent oracle text of the called
-                        card.
-        -l, --legality  Will fetch the legalities of the card.
+        -p, --price     Fetches the price of the card.
+        -o, --oracle    Fetches the most recent oracle text of the card.
+        -l, --legality  Fetches the legalities of the card.
         """
 
         start = time.time()
         parser = Arguments(add_help=False, allow_abbrev=False)
-        parser.add_argument('cardname', nargs='+')
+        parser.add_argument('cardname', nargs='*')
         parser.add_argument('-p', '--price', action='store_true')
         parser.add_argument('-o', '--oracle', action='store_true')
         parser.add_argument('-l', '--legality', action='store_true')
@@ -50,7 +48,9 @@ class Mtg():
             return
 
 
-        async with self.session.get('http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname, 'e:': args.set}) as data:
+        params = (('fuzzy', args.cardname), ('e', args.set))
+        # await self.bot.say(urllib.parse.urlencode(params))
+        async with self.session.get('http://api.scryfall.com/cards/named?', params=urllib.parse.urlencode(params)) as data:
             card = await data.json()
 
         if card['object'] == 'error':
@@ -65,7 +65,7 @@ class Mtg():
 
         msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
         msg.title = "**" + card['name'] + "**"
-        msg.description = ""
+        msg.description = None
 
         if args.oracle is False and args.price is False and args.legality is False:
             msg.set_image(url=card['image_uri'])
@@ -82,21 +82,12 @@ class Mtg():
                 msg.description += "\n Starting loyalty: "+card['loyalty']
 
         if args.price:
-                
-                try:
-                    msg.add_field(name="USD", value='${:,.2f}'.format(float(card['usd'])))
-                except KeyError:
-                    pass
-
-                try:
-                    msg.add_field(name="EUR", value='€{:,.2f}'.format(float(card['eur'])))
-                except KeyError:
-                    pass
-
-                try:
-                    msg.add_field(name="TIX", value='{:,.2f}'.format(float(card['tix'])))
-                except KeyError:
-                    pass
+                fields = ['usd', 'eur', 'tix']
+                for curr in fields:
+                    try:
+                        msg.add_field(name=curr.upper(), value='{:,.2f}'.format(float(card[curr])))
+                    except KeyError:
+                        pass
 
         if args.legality:
             for key, value in card['legalities'].items():
@@ -104,7 +95,7 @@ class Mtg():
 
         end = time.time()
         f = end - start
-        print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
+        msg.set_footer(text="Fetch took: "+str('%.3f'%f)+" seconds.")
         await self.bot.say(embed=msg)
 
 
