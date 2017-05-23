@@ -8,7 +8,6 @@ class Tag():
         self.bot = bot
 
     @commands.group(pass_context=True, invoke_without_command=True)
-    @checks.is_owner()
     async def tag(self, ctx, *, message : str):
         """Let's you reference images using keyword tags."""
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
@@ -35,7 +34,6 @@ class Tag():
             db.close()
 
     @tag.command(pass_context=True, aliases=['add'])
-    @checks.is_owner()
     async def make(self, ctx, *, message : str):
         """Used to add an image to the tag."""
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
@@ -44,7 +42,7 @@ class Tag():
             (tag, url) = re.match("(?P<tag>.*?) (?P<url>[^ ]*)$", message).groups()
             author = ctx.message.author.id
             server_id = ctx.message.server.id
-            cursor.execute('''insert into tag(tag, url, author, server_id) values(?,?,?,?)''', (tag, url, author, server_id))
+            cursor.execute('''insert into tag(tag, url, author, server_id, number_of_uses) values(?,?,?,?,?)''', (tag, url, author, server_id, 0))
             await self.bot.say('Tag successfully inserted.')
             db.commit()
         except Exception:
@@ -55,7 +53,6 @@ class Tag():
             db.close()
 
     @tag.command(pass_context=True)
-    @checks.is_owner()
     async def raw(self, ctx, *, message:str):
         """Returns the raw tag url that you own."""
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")

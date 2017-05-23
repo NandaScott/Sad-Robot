@@ -96,5 +96,23 @@ class Admin:
 
         await self.bot.say(python.format(result))
 
+    @commands.command(hidden=True)
+    @checks.is_owner()
+    async def echo(self, ctx, *tag:str, **url:str):
+        stats = {
+        'bot': self.bot,
+        'tag': tag,
+        'url': url,
+        'ctx': ctx,
+        'message': ctx.message,
+        'server': ctx.message.server,
+        'channel': ctx.message.channel,
+        'author': ctx.message.author
+        }
+        msg = None
+        for k, v in stats:
+            msg += k+":"+v
+        await self.bot.say(msg)
+
 def setup(bot):
     bot.add_cog(Admin(bot))

@@ -49,6 +49,7 @@ class Mtg():
             await self.bot.say(str(e))
             return
 
+
         async with self.session.get('http://api.scryfall.com/cards/named?', params={'fuzzy': args.cardname, 'e:': args.set}) as data:
             card = await data.json()
 
@@ -72,7 +73,7 @@ class Mtg():
             msg.set_thumbnail(url=card['image_uri'])
 
         if args.oracle:
-            if card['converted_mana_cost'] != "0.0":
+            if card['cmc'] != "0.0":
                 msg.title +=" "+card['mana_cost']
             msg.description += card['type_line']+"\n"+card['oracle_text']
             if "Creature" in card['type_line']:
@@ -81,6 +82,7 @@ class Mtg():
                 msg.description += "\n Starting loyalty: "+card['loyalty']
 
         if args.price:
+                
                 try:
                     msg.add_field(name="USD", value='${:,.2f}'.format(float(card['usd'])))
                 except KeyError:
@@ -104,47 +106,6 @@ class Mtg():
         f = end - start
         print("Card fetch took: "+str('%.3f'%f)+" seconds to complete.")
         await self.bot.say(embed=msg)
-    #===================
-    #===================
-    #This doesn't work yet. So will revisit at a later date.
-
-    async def request(self, cardname):
-        url = 'http://api.scryfall.com/cards/named?' + 'fuzzy=' + '+'.join(cardname)
-        async with self.session.get(url) as data:
-            card = await data.json()
-            return await card
-
-    @commands.group(hidden=True)
-    @checks.is_owner()
-    async def mtg2(self, *, cardname : str):
-        """Fetches a magic card."""
-        card = self.request(cardname)
-        msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
-        msg.title = "**" + card['name'] + "**"
-        msg.set_image(url=card['image_uri'])
-        await self.bot.say(embed=msg)
-
-
-    @mtg2.command(name='-p')
-    @checks.is_owner()
-    async def price(self):
-        """ Fetches the price of the magic card """
-
-        try:
-            msg.add_field(name="USD", value='${:,.2f}'.format(float(card['usd'])))
-        except KeyError:
-            pass
-
-        try:
-            msg.add_field(name="EUR", value='€{:,.2f}'.format(float(card['eur'])))
-        except KeyError:
-            pass
-
-        try:
-            msg.add_field(name="TIX", value='{:,.2f}'.format(float(card['tix'])))
-        except KeyError:
-            pass
-
 
 
 def setup(bot):
