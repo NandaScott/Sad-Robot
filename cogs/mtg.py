@@ -39,7 +39,8 @@ class Mtg():
         parser.add_argument('-p', '--price', action='store_true')
         parser.add_argument('-o', '--oracle', action='store_true')
         parser.add_argument('-l', '--legality', action='store_true')
-        parser.add_argument('-s', '--set', action='store', nargs=1)
+        # Will impliment when Scryfall makes a proper api for that
+        # parser.add_argument('-s', '--set', action='store', nargs=1)
 
         try:
             args = parser.parse_args(shlex.split(re.sub(r"\'", "", cardname)))
@@ -48,9 +49,8 @@ class Mtg():
             return
 
 
-        params = (('fuzzy', args.cardname), ('e', args.set))
-        # await self.bot.say(urllib.parse.urlencode(params))
-        async with self.session.get('http://api.scryfall.com/cards/named?', params=urllib.parse.urlencode(params)) as data:
+
+        async with self.session.get('http://api.scryfall.com/cards/named?', params={'fuzzy':args.cardname}) as data:
             card = await data.json()
 
         if card['object'] == 'error':
@@ -97,6 +97,8 @@ class Mtg():
         f = end - start
         msg.set_footer(text="Fetch took: "+str('%.3f'%f)+" seconds.")
         await self.bot.say(embed=msg)
+        await asyncio.sleep(30)
+        await self.session.close()
 
 
 def setup(bot):
