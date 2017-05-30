@@ -57,6 +57,21 @@ class Fun():
         msg.title = "Google"
         await self.bot.say(embed=msg)
 
+    # Currently under construction
+    # @bot.event()
+    # async def on_message(self, ctx):
+    #     if ctx.message.content == "You can't" or "you can't"
+    #         i = True
+    #         ret = ""
+    #         for char in ctx.message.content:
+    #             if i:
+    #                 ret += char.upper()
+    #             else:
+    #                 ret += char.lower()
+    #             if char != ' ':
+    #                 i = not i
+    #         await self.bot.process_commands(ret)
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
