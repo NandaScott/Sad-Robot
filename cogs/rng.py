@@ -90,8 +90,6 @@ class RNG():
         msg = discord.Embed(color=discord.Color(0x8e75ff))
         msg.set_image(url=js['file'])
         await self.bot.say(embed=msg)
-        await asyncio.sleep(30)
-        await self.session.close()
 
 
 def setup(bot):

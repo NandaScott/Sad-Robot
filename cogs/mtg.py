@@ -48,7 +48,7 @@ class Mtg():
             await self.bot.say(str(e))
             return
 
-            
+
         async with self.session.get('http://api.scryfall.com/cards/named?', params={'fuzzy':args.cardname}) as data:
             card = await data.json()
 
@@ -96,8 +96,7 @@ class Mtg():
         f = end - start
         msg.set_footer(text="Fetch took: "+str('%.3f'%f)+" seconds.")
         await self.bot.say(embed=msg)
-        await asyncio.sleep(10)
-        await self.session.close()
+
 
 
 def setup(bot):
