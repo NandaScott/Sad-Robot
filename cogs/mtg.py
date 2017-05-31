@@ -97,6 +97,28 @@ class Mtg():
         msg.set_footer(text="Fetch took: "+str('%.3f'%f)+" seconds.")
         await self.bot.say(embed=msg)
 
+    #TO DO: Rubber duck this later.
+    async def spoilers(self):
+        await client.wait_until_ready()
+        set_code = code
+        card_count = 0
+        channel = discord.server.default_channel
+        msg = discord.Embed(color=discord.Color(0x1b6f9))
+        msg.description = None
+        while not client.is_closed:
+            async with self.session.get('https://api.scryfall.com/cards/search?q=%2B%2Be%3A'+set_code+'&order=set') as data:
+                card = await data.json()
+            if card_count < card['total_count']:
+                msg.title = '**New Spoilers**'
+                c = 0
+                for spoil in range(card_count, card['total_count']):
+                    msg.description += card['data'][c]['name'] + '\n'
+                    c += 1
+                await self.bot.send_message(channel, embed=msg)
+                card_count = card['total_count']
+            await asyncio.sleep(60)
+
+
 
 
 def setup(bot):
