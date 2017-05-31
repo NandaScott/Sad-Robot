@@ -1,3 +1,4 @@
 secret.py
 /.reference/*
 /cogs/lib/tags.db
+*.log

@@ -18,5 +18,6 @@ class Meta():
         """Changes the game the bot is playing."""
         await self.bot.change_presence(game=discord.Game(name=name))
 
+
 def setup(bot):
     bot.add_cog(Meta(bot))
