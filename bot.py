@@ -1,4 +1,4 @@
-import discord
+import discord, logging
 from secret import token
 from discord.ext import commands
 description = '''
@@ -14,9 +14,11 @@ startup_extensions = [
     "cogs.meta",
     "cogs.fun",
     "cogs.admin",
-    "cogs.tag"
+    "cogs.tag",
+    "cogs.foaas"
 ]
 
+logging.basicConfig(level=logging.INFO)
 
 @bot.event
 async def on_ready():

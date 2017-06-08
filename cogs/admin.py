@@ -4,7 +4,6 @@ from discord.ext import commands
 from .utils import checks
 import discord
 import inspect
-import logging
 
 # to expose to the eval command
 import datetime
@@ -114,14 +113,6 @@ class Admin:
         for k, v in stats:
             msg += k+":"+v
         await self.bot.say(msg)
-
-    @checks.is_owner()
-    async def logging(self):
-        logger = logging.getLogger('discord')
-        logger.setLevel(logging.DEBUG)
-        handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-        handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-        logger.addHandler(handler)
 
 
 def setup(bot):
