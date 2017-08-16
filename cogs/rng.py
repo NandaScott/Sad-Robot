@@ -2,6 +2,7 @@ import random
 import re
 import json
 import asyncio, aiohttp, discord
+import os.path, sqlite3, traceback
 from discord.ext import commands
 from .utils import checks
 
@@ -36,10 +37,19 @@ class RNG():
     @checks.is_owner()
     async def rhero(self):
         """For choosing a random Overwatch hero."""
-        async with open('') as data_file:
-            data = json.load(data_file)
-            heros = random.sample(data['heros'], 1)
-            await self.bot.say(heros)
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/overwatch.db")
+        cursor = db.cursor()
+        try:
+            cursor.execute('''select name from heros where name is not null order by random() limit 1''')
+            # await self.bot.say(cursor.fetchone())
+            msg = discord.Embed(color=discord.Color(0x8e75ff))
+            msg.title = cursor.fetchone()[0]
+            await self.bot.say(embed=msg)
+        except Exception as e:
+            db.rollback()
+            await self.bot.say(str(e))
+        finally:
+            db.close()
 
 
     @commands.command()
