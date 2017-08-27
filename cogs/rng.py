@@ -39,16 +39,15 @@ class RNG():
         """For choosing a random Overwatch hero."""
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/overwatch.db")
         cursor = db.cursor()
+        msg = discord.Embed(color=discord.Color(0x8e75ff))
         try:
             cursor.execute('''select name from heros where name is not null order by random() limit 1''')
-            # await self.bot.say(cursor.fetchone())
-            msg = discord.Embed(color=discord.Color(0x8e75ff))
             msg.title = cursor.fetchone()[0]
-            await self.bot.say(embed=msg)
         except Exception as e:
             db.rollback()
             await self.bot.say(str(e))
         finally:
+            await self.bot.say(embed=msg)
             db.close()
 
 
