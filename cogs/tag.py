@@ -10,6 +10,9 @@ class Tag():
     @commands.group(pass_context=True, invoke_without_command=True)
     async def tag(self, ctx, *, message : str):
         """Let's you reference images using keyword tags."""
+        if message is None:
+            await self.bot.say("I need a tag to search with.")
+            return
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
         cursor = db.cursor()
         try:
