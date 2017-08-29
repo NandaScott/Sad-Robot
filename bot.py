@@ -16,7 +16,6 @@ startup_extensions = [
     "cogs.admin",
     "cogs.tag",
     "cogs.foaas",
-    "cogs.background"
 ]
 
 logger = logging.getLogger('discord')

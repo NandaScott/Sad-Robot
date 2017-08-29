@@ -5,7 +5,6 @@ from discord.ext import commands
 class Meta():
     def __init__(self, bot):
         self.bot = bot
-        # self.bot.loop.create_task(self.counting())
 
     @commands.command()
     async def source(self):
