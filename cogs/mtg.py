@@ -13,6 +13,7 @@ class Mtg():
     def __init__(self, bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
+        self.bot.loop.create_task(self.spoilers())
 
 
     @commands.command(aliases=['MTG', 'Mtg'])
@@ -97,26 +98,25 @@ class Mtg():
         msg.set_footer(text="Fetch took: "+str('%.3f'%f)+" seconds.")
         await self.bot.say(embed=msg)
 
-    #TO DO: Rubber duck this later.
+
     async def spoilers(self):
-        await client.wait_until_ready()
-        set_code = code
+        set_code = '++e:xln'
         card_count = 0
-        channel = discord.server.default_channel
+        channel = discord.Object(id='352131916058591234')
         msg = discord.Embed(color=discord.Color(0x1b6f9))
-        msg.description = None
-        while not client.is_closed:
-            async with self.session.get('https://api.scryfall.com/cards/search?q=%2B%2Be%3A'+set_code+'&order=set') as data:
+        msg.description = ""
+        while not self.bot.is_closed:
+            async with self.session.get('https://api.scryfall.com/cards/search?', params={'q':set_code, 'order':'spoiled'}) as data:
                 card = await data.json()
-            if card_count < card['total_count']:
+            if card_count < card['total_cards']:
                 msg.title = '**New Spoilers**'
                 c = 0
-                for spoil in range(card_count, card['total_count']):
+                for spoil in range(card_count, card['total_cards']):
                     msg.description += card['data'][c]['name'] + '\n'
                     c += 1
                 await self.bot.send_message(channel, embed=msg)
-                card_count = card['total_count']
-            await asyncio.sleep(60)
+                card_count = card['total_cards']
+            await asyncio.sleep(120)
 
 
 
