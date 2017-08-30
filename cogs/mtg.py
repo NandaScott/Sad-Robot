@@ -103,16 +103,16 @@ class Mtg():
         set_code = '++e:xln'
         card_count = 0
         channel = discord.Object(id='352131916058591234')
-        msg = discord.Embed(color=discord.Color(0x1b6f9))
-        msg.description = ""
         while not self.bot.is_closed:
             async with self.session.get('https://api.scryfall.com/cards/search?', params={'q':set_code, 'order':'spoiled'}) as data:
                 card = await data.json()
             if card_count < card['total_cards']:
+                msg = discord.Embed(color=discord.Color(0x1b6f9))
+                msg.description = ""
                 msg.title = '**New Spoilers**'
                 c = 0
                 for spoil in range(card_count, card['total_cards']):
-                    msg.description += card['data'][c]['name'] + '\n'
+                    msg.description += '['+card['data'][c]['name']+']('+card['data'][c]['scryfall_uri']+')' + '\n'
                     c += 1
                 await self.bot.send_message(channel, embed=msg)
                 card_count = card['total_cards']
