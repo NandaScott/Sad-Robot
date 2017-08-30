@@ -3,3 +3,4 @@ secret.py
 /cogs/lib/tags.db
 *.log
 /__pycache__/*
+cogs/__pycache__/*
