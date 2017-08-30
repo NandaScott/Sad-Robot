@@ -65,7 +65,7 @@ class Mtg():
 
         msg = discord.Embed(url=card['scryfall_uri'], color=discord.Color(0x1b6f9))
         msg.title = "**" + card['name'] + "**"
-        msg.description = None
+        msg.description = ""
 
         if args.oracle is False and args.price is False and args.legality is False:
             msg.set_image(url=card['image_uri'])
