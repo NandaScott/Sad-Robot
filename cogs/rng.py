@@ -100,6 +100,5 @@ class RNG():
         msg.set_image(url=js['file'])
         await self.bot.say(embed=msg)
 
-
 def setup(bot):
     bot.add_cog(RNG(bot))

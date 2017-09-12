@@ -57,6 +57,15 @@ class Fun():
         msg.title = "Google"
         await self.bot.say(embed=msg)
 
+
+    @commands.command()
+    async def memetext(self, message:str):
+        split = list(message)
+        msg = ""
+        for letter in split:
+            msg += ":regional_indicator_%s:" % letter
+        await self.bot.say(msg)
+
     # Currently under construction
     # @bot.event()
     # async def on_message(self, ctx):
