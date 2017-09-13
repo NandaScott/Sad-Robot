@@ -2,5 +2,4 @@ secret.py
 /.reference/*
 /cogs/lib/tags.db
 *.log
-/__pycache__/*
-cogs/__pycache__/*
+__pycache__
