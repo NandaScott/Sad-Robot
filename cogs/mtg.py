@@ -101,7 +101,7 @@ class Mtg():
     async def spoilers(self):
         set_code = '++e:xln'
         card_count = 0
-        channel = discord.Object(id='352131916058591234')
+        channel = discord.Object(id='352144446453710850')
         while not self.bot.is_closed:
             # print("loop started")
             async with self.session.get('https://api.scryfall.com/cards/search?', params={'q':set_code, 'order':'spoiled'}) as data:
