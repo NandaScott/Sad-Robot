@@ -59,11 +59,13 @@ class Fun():
 
 
     @commands.command()
-    async def memetext(self, message:str):
-        split = list(message)
+    async def memetext(self, *, message:str):
         msg = ""
-        for letter in split:
-            msg += ":regional_indicator_%s:" % letter
+        for character in list(message):
+            if character == " ":
+                msg += "  "
+            else:
+                msg += ":regional_indicator_%s:" % character
         await self.bot.say(msg)
 
     # Currently under construction
