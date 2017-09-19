@@ -98,25 +98,26 @@ class Mtg():
         msg.set_footer(text="Fetch took: "+str('%.3f'%f)+" seconds.")
         await self.bot.say(embed=msg)
 
-    async def spoilers(self):
-        set_code = '++e:xln'
-        card_count = 0
-        channel = discord.Object(id='352144446453710850')
-        while not self.bot.is_closed:
-            # print("loop started")
-            async with self.session.get('https://api.scryfall.com/cards/search?', params={'q':set_code, 'order':'spoiled'}) as data:
-                card = await data.json()
-            # print(card_count, card['total_cards'], len(card['data']))
-            if card_count < card['total_cards']:
-                msg = discord.Embed(color=discord.Color(0x1b6f9))
-                msg.description = ""
-                msg.title = '**New Spoilers**'
-                for i in range(0, min(len(card['data']), card['total_cards']-card_count)):
-                    msg.description += '['+card['data'][i]['name']+']('+card['data'][i]['scryfall_uri']+')' + '\n'
-                if msg.description:
-                    await self.bot.send_message(channel, embed=msg)
-                card_count = card['total_cards']
-            await asyncio.sleep(120)
+    #Commented until needed later.
+    # async def spoilers(self):
+    #     set_code = '++e:xln'
+    #     card_count = 0
+    #     channel = discord.Object(id='352144446453710850')
+    #     while not self.bot.is_closed:
+    #         # print("loop started")
+    #         async with self.session.get('https://api.scryfall.com/cards/search?', params={'q':set_code, 'order':'spoiled'}) as data:
+    #             card = await data.json()
+    #         # print(card_count, card['total_cards'], len(card['data']))
+    #         if card_count < card['total_cards']:
+    #             msg = discord.Embed(color=discord.Color(0x1b6f9))
+    #             msg.description = ""
+    #             msg.title = '**New Spoilers**'
+    #             for i in range(0, min(len(card['data']), card['total_cards']-card_count)):
+    #                 msg.description += '['+card['data'][i]['name']+']('+card['data'][i]['scryfall_uri']+')' + '\n'
+    #             if msg.description:
+    #                 await self.bot.send_message(channel, embed=msg)
+    #             card_count = card['total_cards']
+    #         await asyncio.sleep(120)
 
 def setup(bot):
     bot.add_cog(Mtg(bot))
