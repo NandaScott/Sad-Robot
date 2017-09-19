@@ -13,7 +13,7 @@ class Mtg():
     def __init__(self, bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
-        self.bot.loop.create_task(self.spoilers())
+        # self.bot.loop.create_task(self.spoilers())
 
 
     @commands.command(aliases=['MTG', 'Mtg'])
