@@ -10,7 +10,6 @@ class Fun():
     @commands.command()
     async def piglatin(self, *, words : str):
         """Will translate the following sentence into Pig Latin."""
-        #TODO skip numbers
         dictionary = {
             "suffix":"ay",
             "punctuation":'.,!?;',
@@ -44,30 +43,31 @@ class Fun():
                 message += " " + restOfTheWord + firstChunk + 'w' + dictionary['suffix']
             elif firstChunk in dictionary['punctuation']:
                 message += firstChunk
-            # elif isinstance(int(word), int):
-            #     pass
+            elif isinstance(int(word), int):
+                message += word
             else:
                 message += " " + restOfTheWord + firstChunk + dictionary['suffix']
 
         await self.bot.say(message)
 
     @commands.command()
-    async def lmgtfy(self, *, words : str):
+    async def lmgtfy(self, *, query : str):
         """Let me google that for you."""
-        search = "+".join(re.findall(r"[\w']+|[.,!?;]", words))
-        url = 'http://lmgtfy.com/?q=%s' % search
-        newMessage = discord.Embed(title="Google", url=url, color=discord.Color(0x1b6f9))
+        search = "+".join(re.findall(r"[\w']+|[.,!?;]", query))
+        newMessage = discord.Embed(title="Google", url='http://lmgtfy.com/?q={}'.format(search), color=discord.Color(0x1b6f9))
         await self.bot.say(embed=newMessage)
 
 
     @commands.command()
     async def memetext(self, *, message:str):
         """Responds with your message, but with more meme added."""
-        #Needs to catch integers
         newMessage = ""
         for character in list(message):
             if character == " ":
                 newMessage += "  "
+            elif isinstance(int(character), int):
+                await self.bot.say("Unexpectedly, numbers aren't an emoji. Can't meme this text yo.")
+                return
             else:
                 newMessage += ":regional_indicator_%s:" % character
         await self.bot.say(newMessage)
