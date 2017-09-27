@@ -40,13 +40,13 @@ class Fun():
                     pass
 
             if firstChunk.lower() in dictionary['vowels']:
-                message += " " + restOfTheWord + firstChunk + 'w' + dictionary['suffix']
+                message += " {}{}w{}".format(restOfTheWord, firstChunk, dictionary['suffix'])
             elif firstChunk in dictionary['punctuation']:
                 message += firstChunk
-            elif isinstance(int(word), int):
+            elif word.isdigit():
                 message += word
             else:
-                message += " " + restOfTheWord + firstChunk + dictionary['suffix']
+                message += " {}{}{}".format(restOfTheWord, firstChunk, dictionary['suffix'])
 
         await self.bot.say(message)
 

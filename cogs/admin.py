@@ -69,5 +69,18 @@ class Admin:
         else:
             await self.bot.add_reaction(ctx.message, '\N{OK HAND SIGN}')
 
+    @commands.group(invoke_without_command=True)
+    @checks.is_owner()
+    async def echo(self, *, echo : str):
+        """Echos whatever you say."""
+        await self.bot.say(echo)
+
+    @echo.command()
+    @checks.is_owner()
+    async def embed(self, *, echo : str):
+        """Echos whatever you say as an embed."""
+        message = discord.Embed(description=echo)
+        await self.bot.say(embed=message)
+
 def setup(bot):
     bot.add_cog(Admin(bot))
