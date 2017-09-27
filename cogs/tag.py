@@ -17,16 +17,17 @@ class Tag():
         cursor = db.cursor()
         try:
             try:
-                cursor.execute('''select url from tag where tag=? and author=? and server_id=?''', (message.lower(), ctx.message.author.id, ctx.message.server.id))
+                cursor.execute('''select url from tag where tag=? and author=? and server_id=?''',
+                (message.lower(), ctx.message.author.id, ctx.message.server.id))
             except Exception:
                 db.rollback()
                 db.close()
                 await self.bot.say("You cannot access that tag.")
                 return
             tag = cursor.fetchone()
-            msg = discord.Embed(color=discord.Color(0x7ddd6e))
-            msg.set_image(url=tag[0])
-            await self.bot.say(embed=msg)
+            message = discord.Embed(color=discord.Color(0x7ddd6e))
+            message.set_image(url=tag[0])
+            await self.bot.say(embed=message)
             cursor.execute('''update tag set number_of_uses = number_of_uses + 1 where tag=? ''', (message.lower(),))
             db.commit()
         except Exception:
@@ -78,18 +79,6 @@ class Tag():
             return
         finally:
             db.close()
-
-    # @tag.command(pass_context=True)
-    # @checks.is_owner()
-    # async def info(self, ctx):
-    #     db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
-    #     cursor = db.cursor()
-    #     cursor.execute('''select * from tag where author=? and server_id=?''', (ctx.message.author.id, ctx.message.server.id))
-    #     info = cursor.fetchall()
-    #     msg = discord.Embed(color=discord.Color(0x7ddd6e))
-    #     await self.bot.say(info)
-
-
 
 def setup(bot):
     bot.add_cog(Tag(bot))

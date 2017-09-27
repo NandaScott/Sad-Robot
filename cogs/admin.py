@@ -6,7 +6,7 @@ import discord
 import inspect
 
 # to expose to the eval command
-import datetime
+import time, sqlite3, os.path
 from collections import Counter
 
 class Admin:
@@ -17,11 +17,12 @@ class Admin:
 
     @commands.command(hidden=True)
     @checks.is_owner()
-    async def db(self, *, command: str):
-        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/tags.db")
+    async def db(self, *, table : str, command : str):
+        """Executes SQL query manually."""
+        db = sqlite3.connect(os.path.dirname(__file__) + "/lib/{}.db".format(table))
         cursor = db.cursor()
         try:
-            cursor.execute('''%s''' % command.lower())
+            cursor.execute('''?''', command.lower())
             await self.bot.say('Command successful.')
             db.commit()
         except Exception as e:
@@ -31,9 +32,10 @@ class Admin:
         finally:
             db.close()
 
-    @commands.command(hidden=True)
+    # These next three commands should reply with a reaction
+    @commands.command(hidden=True, pass_context=True)
     @checks.is_owner()
-    async def load(self, *, module : str):
+    async def load(self, ctx, *, module : str):
         """Loads a module."""
         try:
             self.bot.load_extension("cogs.%s" % module)
@@ -41,11 +43,11 @@ class Admin:
             await self.bot.say('\N{PISTOL}')
             await self.bot.say('{}: {}'.format(type(e).__name__, e))
         else:
-            await self.bot.say('\N{OK HAND SIGN}')
+            await self.bot.add_reaction(ctx.message, '\N{OK HAND SIGN}')
 
-    @commands.command(hidden=True)
+    @commands.command(hidden=True, pass_context=True)
     @checks.is_owner()
-    async def unload(self, *, module : str):
+    async def unload(self, ctx, *, module : str):
         """Unloads a module."""
         try:
             self.bot.unload_extension("cogs.%s" % module)
@@ -53,11 +55,11 @@ class Admin:
             await self.bot.say('\N{PISTOL}')
             await self.bot.say('{}: {}'.format(type(e).__name__, e))
         else:
-            await self.bot.say('\N{OK HAND SIGN}')
+            await self.bot.add_reaction(ctx.message, '\N{OK HAND SIGN}')
 
-    @commands.command(name='reload', hidden=True)
+    @commands.command(name='reload', hidden=True, pass_context=True)
     @checks.is_owner()
-    async def _reload(self, *, module : str):
+    async def _reload(self, ctx, *, module : str):
         """Reloads a module."""
         try:
             self.bot.unload_extension("cogs.%s" % module)
@@ -65,55 +67,7 @@ class Admin:
         except Exception as e:
             await self.bot.say('\N{PISTOL} \n {}: {}'.format(type(e).__name__, e))
         else:
-            await self.bot.say('\N{OK HAND SIGN}')
-
-    @commands.command(pass_context=True, hidden=True)
-    @checks.is_owner()
-    async def debug(self, ctx, *, code : str):
-        """Evaluates code."""
-        code = code.strip('` ')
-        python = '```py\n{}\n```'
-        result = None
-
-        env = {
-            'bot': self.bot,
-            'ctx': ctx,
-            'message': ctx.message,
-            'server': ctx.message.server,
-            'channel': ctx.message.channel,
-            'author': ctx.message.author
-        }
-
-        env.update(globals())
-
-        try:
-            result = eval(code, env)
-            if inspect.isawaitable(result):
-                result = await result
-        except Exception as e:
-            await self.bot.say(python.format(type(e).__name__ + ': ' + str(e)))
-            return
-
-        await self.bot.say(python.format(result))
-
-    @commands.command(hidden=True)
-    @checks.is_owner()
-    async def echo(self, ctx, *tag:str, **url:str):
-        stats = {
-        'bot': self.bot,
-        'tag': tag,
-        'url': url,
-        'ctx': ctx,
-        'message': ctx.message,
-        'server': ctx.message.server,
-        'channel': ctx.message.channel,
-        'author': ctx.message.author
-        }
-        msg = None
-        for k, v in stats:
-            msg += k+":"+v
-        await self.bot.say(msg)
-
+            await self.bot.add_reaction(ctx.message, '\N{OK HAND SIGN}')
 
 def setup(bot):
     bot.add_cog(Admin(bot))

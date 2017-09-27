@@ -1,8 +1,6 @@
-import random
-import re
-import json
+import random, re, json
 import asyncio, aiohttp, discord
-import os.path, sqlite3, traceback
+import os.path, sqlite3
 from discord.ext import commands
 from .utils import checks
 
@@ -10,7 +8,10 @@ class RNG():
     """For when you don't want bias."""
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession()
+
+    async def getRequest(self, url, **kwargs):
+        async with self.bot.aiohttp_session.get(url, **kwargs) as response:
+            return await response.json()
 
     @commands.command()
     async def roll(self, dice : str):
@@ -34,32 +35,20 @@ class RNG():
             return
 
     @commands.command()
-    @checks.is_owner()
     async def rhero(self):
         """For choosing a random Overwatch hero."""
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/overwatch.db")
         cursor = db.cursor()
-        msg = discord.Embed(color=discord.Color(0x8e75ff))
+        message = discord.Embed(color=discord.Color(0x8e75ff))
         try:
             cursor.execute('''select name from heros where name is not null order by random() limit 1''')
-            msg.title = cursor.fetchone()[0]
+            message.title = cursor.fetchone()[0]
         except Exception as e:
             db.rollback()
             await self.bot.say(str(e))
         finally:
-            await self.bot.say(embed=msg)
+            await self.bot.say(embed=message)
             db.close()
-
-
-    @commands.command()
-    async def lenny(self):
-        """Displays a random lenny face."""
-        lenny = random.choice([
-            "( ͡° ͜ʖ ͡°)", "( ͠° ͟ʖ ͡°)", "ᕦ( ͡° ͜ʖ ͡°)ᕤ", "( ͡~ ͜ʖ ͡°)",
-            "( ͡o ͜ʖ ͡o)", "( ͡° ͜ʖ ͡ -)", "( ͡͡ ° ͜ ʖ ͡ °)﻿", "(ง ͠° ͟ل͜ ͡°)ง",
-            "ヽ༼ຈل͜ຈ༽ﾉ"
-        ])
-        await self.bot.say(lenny)
 
     @commands.command(name='8ball')
     async def fortune(self):
@@ -94,11 +83,10 @@ class RNG():
 
         You really need help with this one?
         """
-        async with self.session.get('http://random.cat/meow') as r:
-            js = await r.json()
-        msg = discord.Embed(color=discord.Color(0x8e75ff))
-        msg.set_image(url=js['file'])
-        await self.bot.say(embed=msg)
+        cat =  self.getRequest(url='http://random.cat/meow')
+        message = discord.Embed(color=discord.Color(0x8e75ff))
+        message.set_image(url=cat['file'])
+        await self.bot.say(embed=message)
 
 def setup(bot):
     bot.add_cog(RNG(bot))

@@ -1,4 +1,4 @@
-import discord, logging
+import discord, logging, aiohttp
 from secret import token
 from discord.ext import commands
 description = '''
@@ -6,16 +6,14 @@ A bot that was made to practice my python and make a cool function for my discor
 '''
 
 bot = commands.Bot(command_prefix='?', description=description)
-
+bot.aiohttp_session = aiohttp.ClientSession(loop=bot.loop)
 #Manages what extensions are required.
 startup_extensions = [
     "cogs.mtg",
     "cogs.rng",
     "cogs.meta",
     "cogs.fun",
-    "cogs.admin",
-    "cogs.tag",
-    "cogs.foaas",
+    "cogs.admin"
 ]
 
 logger = logging.getLogger('discord')
