@@ -1,21 +1,18 @@
 # This cog is brought to you by Rapptz on github.
 # You can find it here: https://github.com/Rapptz/RoboDanny/blob/master/cogs/admin.py
-from discord.ext import commands
-from .utils import checks
-import discord
-import inspect
-
-# to expose to the eval command
+import discord, inspect
 import time, sqlite3, os.path
 from collections import Counter
+from discord.ext import commands
+from .utils import checks
 
 class Admin:
-    """Admin-only commands that make the bot dynamic."""
+    """Admin-only commands that make the bot dynamic. Only for use for my master."""
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(hidden=True)
+    @commands.command()
     @checks.is_owner()
     async def db(self, *, table : str, command : str):
         """Executes SQL query manually."""
@@ -32,8 +29,7 @@ class Admin:
         finally:
             db.close()
 
-    # These next three commands should reply with a reaction
-    @commands.command(hidden=True, pass_context=True)
+    @commands.command(pass_context=True)
     @checks.is_owner()
     async def load(self, ctx, *, module : str):
         """Loads a module."""
@@ -45,7 +41,7 @@ class Admin:
         else:
             await self.bot.add_reaction(ctx.message, '\N{OK HAND SIGN}')
 
-    @commands.command(hidden=True, pass_context=True)
+    @commands.command(pass_context=True)
     @checks.is_owner()
     async def unload(self, ctx, *, module : str):
         """Unloads a module."""
@@ -57,7 +53,7 @@ class Admin:
         else:
             await self.bot.add_reaction(ctx.message, '\N{OK HAND SIGN}')
 
-    @commands.command(name='reload', hidden=True, pass_context=True)
+    @commands.command(name='reload', pass_context=True)
     @checks.is_owner()
     async def _reload(self, ctx, *, module : str):
         """Reloads a module."""
