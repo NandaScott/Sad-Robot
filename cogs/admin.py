@@ -1,6 +1,6 @@
 # This cog is brought to you by Rapptz on github.
 # You can find it here: https://github.com/Rapptz/RoboDanny/blob/master/cogs/admin.py
-import discord, inspect
+import discord, inspect, re
 import time, sqlite3, os.path
 from collections import Counter
 from discord.ext import commands
@@ -14,8 +14,11 @@ class Admin:
 
     @commands.command()
     @checks.is_owner()
-    async def db(self, *, table : str, command : str):
+    async def db(self, *args:str):
         """Executes SQL query manually."""
+        table = args[0]
+        commands = args[1:]
+        commands = re.sub(r'\(|\'|,|\)+', '', commands)
         db = sqlite3.connect(os.path.dirname(__file__) + "/lib/{}.db".format(table))
         cursor = db.cursor()
         try:
@@ -34,7 +37,7 @@ class Admin:
     async def load(self, ctx, *, module : str):
         """Loads a module."""
         try:
-            self.bot.load_extension("cogs.%s" % module)
+            self.bot.load_extension("cogs.{}".format(module))
         except Exception as e:
             await self.bot.say('\N{PISTOL}')
             await self.bot.say('{}: {}'.format(type(e).__name__, e))
@@ -46,20 +49,20 @@ class Admin:
     async def unload(self, ctx, *, module : str):
         """Unloads a module."""
         try:
-            self.bot.unload_extension("cogs.%s" % module)
+            self.bot.unload_extension("cogs.{}".format(module))
         except Exception as e:
             await self.bot.say('\N{PISTOL}')
             await self.bot.say('{}: {}'.format(type(e).__name__, e))
         else:
             await self.bot.add_reaction(ctx.message, '\N{OK HAND SIGN}')
 
-    @commands.command(name='reload', pass_context=True)
+    @commands.command(name='reload', pass_context=True, invoke_without_command=True)
     @checks.is_owner()
     async def _reload(self, ctx, *, module : str):
         """Reloads a module."""
         try:
-            self.bot.unload_extension("cogs.%s" % module)
-            self.bot.load_extension("cogs.%s" % module)
+            self.bot.unload_extension("cogs.{}".format(module))
+            self.bot.load_extension("cogs.{}".format(module))
         except Exception as e:
             await self.bot.say('\N{PISTOL} \n {}: {}'.format(type(e).__name__, e))
         else:

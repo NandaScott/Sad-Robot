@@ -79,11 +79,8 @@ class RNG():
 
     @commands.command()
     async def cat(self):
-        """Displays a random cat image
-
-        You really need help with this one?
-        """
-        cat =  self.getRequest(url='http://random.cat/meow')
+        """Displays a random cat image"""
+        cat = await self.getRequest(url='http://random.cat/meow')
         message = discord.Embed(color=discord.Color(0x8e75ff))
         message.set_image(url=cat['file'])
         await self.bot.say(embed=message)

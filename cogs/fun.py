@@ -65,9 +65,8 @@ class Fun():
         for character in list(message):
             if character == " ":
                 newMessage += "  "
-            elif isinstance(int(character), int):
-                await self.bot.say("Unexpectedly, numbers aren't an emoji. Can't meme this text yo.")
-                return
+            elif not character.isalpha():
+                pass
             else:
                 newMessage += ":regional_indicator_%s:" % character
         await self.bot.say(newMessage)

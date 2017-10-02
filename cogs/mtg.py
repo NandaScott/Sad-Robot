@@ -18,26 +18,26 @@ class Mtg():
 
         The bot can correct spelling errors, but will also fetch Un-set cards so be careful.
         """
-        if ctx.invoked_subcommand is None:
-            startTimer = time.monotonic()
-            card = await self.getRequest(url='http://api.scryfall.com/cards/named?', params={'fuzzy':cardname})
-            endTimer = time.monotonic()
-            f = endTimer - startTimer
 
-            if card['object'] == "error":
-                await self.bot.say(card['details'])
-                return
+        startTimer = time.monotonic()
+        card = await self.getRequest(url='http://api.scryfall.com/cards/named?', params={'fuzzy':cardname})
+        endTimer = time.monotonic()
+        f = endTimer - startTimer
 
-            message = discord.Embed(
-                title="**{}**".format(card['name']),
-                url=card['scryfall_uri'],
-                color=discord.Color(0x1b6f9),
-                description=""
-            )
+        if card['object'] == "error":
+            await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details']))
+            return
 
-            message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-            message.set_image(url=card['image_uri'])
-            await self.bot.say(embed=message)
+        message = discord.Embed(
+            title="**{}**".format(card['name']),
+            url=card['scryfall_uri'],
+            color=discord.Color(0x1b6f9),
+            description=""
+        )
+
+        message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
+        message.set_image(url=card['image_uri'])
+        await self.bot.say(embed=message)
 
     @mtg.command(aliases=['p'])
     async def price(self, *, cardname : str):
@@ -48,7 +48,7 @@ class Mtg():
         f = endTimer - startTimer
 
         if card['object'] == "error":
-            await self.bot.say(card['details'])
+            await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details']))
             return
 
         message = discord.Embed(
@@ -80,7 +80,7 @@ class Mtg():
 
 
         if card['object'] == "error":
-            await self.bot.say(card['details'])
+            await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details']))
             return
 
         message = discord.Embed(
@@ -105,13 +105,13 @@ class Mtg():
     @mtg.command(alias=['l', 'legality'])
     async def legal(self, *, cardname : str):
         """Fetches the formats the card is legal in."""
-        startTimer = time.monoto, nic()
+        startTimer = time.monotonic()
         card = await self.getRequest(url='http://api.scryfall.com/cards/named?', params={'fuzzy':cardname})
         endTimer = time.monotonic()
         f = endTimer - startTimer
 
         if card['object'] == "error":
-            await self.bot.say(card['details'])
+            await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details']))
             return
 
         message = discord.Embed(
@@ -133,7 +133,7 @@ class Mtg():
         """Fetches the image of a certain set. Requires the 3 letter code.
 
         Usage: ?mtg set <cardname> <setcode>"""
-        cardname = args[:-2]
+        cardname = args[0:len(args)-1]
         setcode = args[-1]
         startTimer = time.monotonic()
         card = await self.getRequest(url='http://api.scryfall.com/cards/named?', params={'fuzzy':cardname, 'set':setcode})
@@ -141,7 +141,7 @@ class Mtg():
         f = endTimer - startTimer
 
         if card['object'] == "error":
-            await self.bot.say(card['details'])
+            await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details'])) 
             return
 
         message = discord.Embed(
@@ -154,6 +154,27 @@ class Mtg():
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
         message.set_image(url=card['image_uri'])
         await self.bot.say(embed=message)
+
+    @mtg.command(pass_context=True)
+    async def random(self, ctx):
+        """Fetches a random card."""
+        startTimer = time.monotonic()
+        card = await self.getRequest(url='http://api.scryfall.com/cards/random')
+        endTimer = time.monotonic()
+        f = endTimer - startTimer
+
+        message = discord.Embed(
+            title="**{}**".format(card['name']),
+            url=card['scryfall_uri'],
+            color=discord.Color(0x1b6f9),
+            description=""
+        )
+
+        message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
+        message.set_image(url=card['image_uri'])
+        await self.bot.say(embed=message)
+
+
 
 def setup(bot):
     bot.add_cog(Mtg(bot))
