@@ -124,7 +124,19 @@ class Mtg():
         message.set_thumbnail(url=card['image_uris']['normal'])
 
         for key, value in card['legalities'].items():
-                message.add_field(name=key[:1].upper()+key[1:], value=re.sub('_', " ", value[:1].upper()+value[1:]), inline=True)
+            
+                if value == "banned":
+                    symbol = ":no_entry:"
+                if value == "not_legal":
+                    symbol = ":x:"
+                if value == "legal":
+                    symbol = ":white_check_mark:"
+
+                message.add_field(
+                name=key[:1].upper()+key[1:],
+                value="{} {}".format(
+                    re.sub('_', " ", value[:1].upper()+value[1:]), symbol
+                    ))
 
         await self.bot.say(embed=message)
 
@@ -141,7 +153,7 @@ class Mtg():
         f = endTimer - startTimer
 
         if card['object'] == "error":
-            await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details'])) 
+            await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details']))
             return
 
         message = discord.Embed(
