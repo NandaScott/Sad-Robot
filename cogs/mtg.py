@@ -36,7 +36,7 @@ class Mtg():
         )
 
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-        message.set_image(url=card['image_uri'])
+        message.set_image(url=card['image_uris']['normal'])
         await self.bot.say(embed=message)
 
     @mtg.command(aliases=['p'])
@@ -59,7 +59,7 @@ class Mtg():
         )
 
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-        message.set_thumbnail(url=card['image_uri'])
+        message.set_thumbnail(url=card['image_uris']['normal'])
 
         fields = ['usd', 'eur', 'tix']
         for currency in fields:
@@ -90,7 +90,7 @@ class Mtg():
             description=""
         )
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-        message.set_thumbnail(url=card['image_uri'])
+        message.set_thumbnail(url=card['image_uris']['normal'])
 
         if card['cmc'] != "0.0":
                 message.title +=" "+card['mana_cost']
@@ -121,7 +121,7 @@ class Mtg():
             description=""
         )
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-        message.set_thumbnail(url=card['image_uri'])
+        message.set_thumbnail(url=card['image_uris']['normal'])
 
         for key, value in card['legalities'].items():
                 message.add_field(name=key[:1].upper()+key[1:], value=re.sub('_', " ", value[:1].upper()+value[1:]), inline=True)
@@ -152,7 +152,7 @@ class Mtg():
         )
 
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-        message.set_image(url=card['image_uri'])
+        message.set_image(url=card['image_uris']['normal'])
         await self.bot.say(embed=message)
 
     @mtg.command(pass_context=True)
@@ -171,7 +171,7 @@ class Mtg():
         )
 
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-        message.set_image(url=card['image_uri'])
+        message.set_image(url=card['image_uris']['normal'])
         await self.bot.say(embed=message)
 
 
