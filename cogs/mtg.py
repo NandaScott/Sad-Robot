@@ -28,7 +28,7 @@ class Mtg():
             await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details']))
             return
 
-        if card['card_faces']:
+        if 'card_faces' in card:
             for entry in card['card_faces']:
                 message = discord.Embed(
                     title="**{}**".format(entry['name']),
@@ -51,7 +51,7 @@ class Mtg():
         message.set_image(url=card['image_uris']['normal'])
         await self.bot.say(embed=message)
 
-    @mtg.command(aliases=['-p', '--price'])
+    @mtg.command(name='-p', aliases=['--price'])
     async def price(self, *, cardname : str):
         """Fetches the price of the card."""
         startTimer = time.monotonic()
@@ -71,18 +71,23 @@ class Mtg():
         )
 
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-        message.set_thumbnail(url=card['image_uris']['normal'])
 
-        fields = ['usd', 'eur', 'tix']
-        for currency in fields:
-            try:
-                message.add_field(name=currency.upper(), value='{:,.2f}'.format(float(card[currency])))
-            except KeyError:
-                pass
+        if 'card_faces' in card:
+            message.set_thumbnail(url=card['card_faces'][0]['image_uris']['normal'])
+        else:
+            message.set_thumbnail(url=card['image_uris']['normal'])
+
+        keys = ['usd', 'eur', 'tix']
+        if all(keys in card for keys in card):
+            for currency in keys:
+                try:
+                    message.add_field(name=currency.upper(), value='{:,.2f}'.format(float(card[currency])))
+                except KeyError:
+                    pass
 
         await self.bot.say(embed=message)
 
-    @mtg.command(aliases=['-o', '--oracle'])
+    @mtg.command(name='-o', aliases=['--oracle'])
     async def oracle(self, *, cardname : str):
         """Fetches oracle text of the card."""
         startTimer = time.monotonic()
@@ -103,7 +108,7 @@ class Mtg():
         )
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
 
-        if card['card_faces']:
+        if 'card_faces' in card:
             card_images = None
             for entry in card['card_faces']:
                 message.description += "\n=========\n"
@@ -129,7 +134,7 @@ class Mtg():
 
         await self.bot.say(embed=message)
 
-    @mtg.command(alias=['-l', '--legality'])
+    @mtg.command(name='-l', alias=['--legality'])
     async def legal(self, *, cardname : str):
         """Fetches the formats the card is legal in."""
         startTimer = time.monotonic()
@@ -148,7 +153,10 @@ class Mtg():
             description=""
         )
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
-        message.set_thumbnail(url=card['image_uris']['normal'])
+        if 'card_faces' in card:
+            message.set_thumbnail(url=card['card_faces'][0]['image_uris']['normal'])
+        else:
+            message.set_thumbnail(url=card['image_uris']['normal'])
 
         for key, value in card['legalities'].items():
 
@@ -167,7 +175,7 @@ class Mtg():
 
         await self.bot.say(embed=message)
 
-    @mtg.command(name='set', pass_context=True)
+    @mtg.command(name='-s', alias=['--set'], pass_context=True)
     async def edition(self, ctx, *args : str):
         """Fetches the image of a certain set. Requires the 3 letter code.
 
@@ -202,6 +210,22 @@ class Mtg():
         endTimer = time.monotonic()
         f = endTimer - startTimer
 
+        if card['object'] == "error":
+            await self.bot.say(re.sub(r'\(|\'|,|\)+', '', card['details']))
+            return
+
+        if 'card_faces' in card:
+            for entry in card['card_faces']:
+                message = discord.Embed(
+                    title="**{}**".format(entry['name']),
+                    url=card['scryfall_uri'],
+                    color=discord.Color(0x1b6f9)
+                )
+                message.set_image(url=entry['image_uris']['normal'])
+                message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
+                await self.bot.say(embed=message)
+            return
+
         message = discord.Embed(
             title="**{}**".format(card['name']),
             url=card['scryfall_uri'],
@@ -212,8 +236,6 @@ class Mtg():
         message.set_footer(text="Fetch took: {} seconds.".format('%.3f' % f))
         message.set_image(url=card['image_uris']['normal'])
         await self.bot.say(embed=message)
-
-
 
 def setup(bot):
     bot.add_cog(Mtg(bot))
