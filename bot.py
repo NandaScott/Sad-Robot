@@ -1,6 +1,7 @@
 import discord, logging, aiohttp
 from secret import token
 from discord.ext import commands
+
 description = '''
 A bot that was made to practice my python and make a cool function for my discord server.
 '''
